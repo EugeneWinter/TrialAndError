@@ -1,0 +1,35 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d8f9e04995086a747b397ce33258a7bf, type: 3}
+  m_Name: Ceramic
+  m_EditorClassIdentifier: 
+  hardness: 0.7
+  density: 0.55
+  brittleness: 0.75
+  roughness: 0.15
+  resonance: 0.65
+  brightness: 0.7
+  hollowness: 0.2
+  graininess: 0.1
+  wetness: 0
+  metallicity: 0.05
+  warmth: 0.35
+  baseFreq: 350
+  partialRatios:
+  - 2.71
+  - 5.13
+  - 8.47
+  - 12.1
+  - 15.8
+  partialDecayBase: 7
+  primaryNoise: 0
+  secondaryNoise: 1

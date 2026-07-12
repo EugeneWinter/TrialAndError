@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2202977238d05de48ad552a1f67cf2c5, type: 3}
+  m_Name: Log
+  m_EditorClassIdentifier: 
+  id: 4
+  blockName: Log
+  hardness: 2
+  breakable: 1
+  dropId: 4
+  category: 1
+  requiredTool: 2
+  requiredTier: 0
+  texTop: {fileID: 2800000, guid: 70f8f1e4654e1284583323d5e6521009, type: 3}
+  texBottom: {fileID: 2800000, guid: 70f8f1e4654e1284583323d5e6521009, type: 3}
+  texNorth: {fileID: 2800000, guid: 87c4e398cc0c2ce48be1c43aa16ea8f8, type: 3}
+  texSouth: {fileID: 2800000, guid: 87c4e398cc0c2ce48be1c43aa16ea8f8, type: 3}
+  texEast: {fileID: 2800000, guid: 87c4e398cc0c2ce48be1c43aa16ea8f8, type: 3}
+  texWest: {fileID: 2800000, guid: 87c4e398cc0c2ce48be1c43aa16ea8f8, type: 3}
+  indexTop: 4
+  indexBottom: 4
+  indexNorth: 5
+  indexSouth: 5
+  indexEast: 5
+  indexWest: 5
