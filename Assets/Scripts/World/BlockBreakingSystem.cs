@@ -17,7 +17,7 @@ public class BlockBreakingSystem : MonoBehaviour
     private GameObject overlayInstance;
     private MeshRenderer overlayRenderer;
     private Material overlayMaterial;
-
+    private int3 currentHitNormal;
     private float digTimer = 0f;
     private float digInterval = 0.35f;
 
@@ -31,12 +31,17 @@ public class BlockBreakingSystem : MonoBehaviour
         overlayMaterial = overlayRenderer.material;
     }
 
-    public void StartBreaking(int3 blockPos)
+    public void StartBreaking(int3 blockPos, int3 hitNormal)
     {
         if (GameManager.Instance.state != GameState.Playing) { StopBreaking(); return; }
-        if (isBreaking && currentBlockPos.Equals(blockPos)) return;
+        if (isBreaking && currentBlockPos.Equals(blockPos))
+        {
+            currentHitNormal = hitNormal;
+            return;
+        }
 
         currentBlockPos = blockPos;
+        currentHitNormal = hitNormal;
         breakProgress = 0f;
         digTimer = 0f;
         digInterval = 0.35f;
@@ -124,6 +129,19 @@ public class BlockBreakingSystem : MonoBehaviour
         Vector3 p = new Vector3(currentBlockPos.x + 0.5f, currentBlockPos.y + 0.5f, currentBlockPos.z + 0.5f);
 
         AudioManager.Instance.PlayDigHit(id, p, progress);
+
+        if (BlockParticleSystem.Instance != null)
+        {
+            BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(id);
+            if (block != null)
+            {
+                Vector3Int normal = new Vector3Int(currentHitNormal.x, currentHitNormal.y, currentHitNormal.z);
+                BlockFace face = BlockColorSampler.FaceFromNormal(normal);
+
+                Vector3 hitPoint = p + new Vector3(normal.x, normal.y, normal.z) * 0.5f;
+                BlockParticleSystem.Instance.SpawnDigParticles(hitPoint, block, face);
+            }
+        }
     }
 
     public void StopBreaking()
@@ -143,6 +161,13 @@ public class BlockBreakingSystem : MonoBehaviour
         if (AudioManager.Instance != null)
         {
             AudioManager.Instance.PlayBlockBreak(blockId, blockCenter);
+        }
+
+        if (BlockParticleSystem.Instance != null && block != null)
+        {
+            Vector3Int normal = new Vector3Int(currentHitNormal.x, currentHitNormal.y, currentHitNormal.z);
+            BlockFace face = BlockColorSampler.FaceFromNormal(normal);
+            BlockParticleSystem.Instance.SpawnBreakParticles(blockCenter, block, face);
         }
 
         WorldManager.Instance.SetBlock(currentBlockPos.x, currentBlockPos.y, currentBlockPos.z, 0);

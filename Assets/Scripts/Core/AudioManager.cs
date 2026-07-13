@@ -11,7 +11,7 @@ public class AudioManager : MonoBehaviour
     [Range(0f, 1f)] public float footstepBaseVolume = 0.7f;
     [Range(0f, 1f)] public float sneakVolumeScale = 0.5f;
     [Range(0f, 0.3f)] public float sneakPitchVarBoost = 0.05f;
-    public bool processFootstepSamples = false;
+    public bool processFootstepSamples = true;
 
     [Header("Block Break")]
     [Range(0.3f, 1.0f)] public float blockBreakPitchMin = 0.65f;

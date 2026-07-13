@@ -26,7 +26,7 @@ public class KnappingTrigger : MonoBehaviour
         }
         else
         {
-            Debug.Log($"Need {stoneBladeRecipe.inputCount}x item {stoneBladeRecipe.inputItemId} in hand");
+            Debug.Log($"Насри себе на голову");
         }
     }
 }

@@ -27,7 +27,7 @@ public class VoxelInteraction : MonoBehaviour
     {
         if (Input.GetMouseButton(0))
         {
-            BlockBreakingSystem.Instance.StartBreaking(hit.blockPos);
+            BlockBreakingSystem.Instance.StartBreaking(hit.blockPos, hit.normal);
             BlockBreakingSystem.Instance.ContinueBreaking();
         }
         else
@@ -53,6 +53,16 @@ public class VoxelInteraction : MonoBehaviour
         if (!playerBox.Intersects(blockBox))
         {
             WorldManager.Instance.SetBlock(placePos.x, placePos.y, placePos.z, selectedBlock);
+
+            if (BlockParticleSystem.Instance != null)
+            {
+                BlockSO placedBlock = WorldManager.Instance.blockDatabase.GetBlockSO(selectedBlock);
+                if (placedBlock != null)
+                {
+                    Vector3 placeCenter = new Vector3(placePos.x + 0.5f, placePos.y + 0.5f, placePos.z + 0.5f);
+                    BlockParticleSystem.Instance.SpawnPlaceParticles(placeCenter, placedBlock);
+                }
+            }
 
             if (AudioManager.Instance != null)
             {

@@ -68,7 +68,6 @@ public class GameManager : MonoBehaviour
     IEnumerator LoadWorld()
     {
         state = GameState.Loading;
-        Debug.Log("Generating world...");
 
         worldManager.GenerateWorld();
         yield return null;
@@ -84,7 +83,6 @@ public class GameManager : MonoBehaviour
         Cursor.visible = false;
 
         state = GameState.Playing;
-        Debug.Log($"Player spawned at {spawnX}, {spawnY}, {spawnZ}");
     }
 
     int FindSurface(int x, int z)

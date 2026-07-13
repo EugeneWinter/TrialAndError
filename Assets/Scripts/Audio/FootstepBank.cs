@@ -86,6 +86,5 @@ public class FootstepBank
             if (count == 0)
                 Debug.LogWarning($"FootstepBank empty: {kv.Key.Item1}/{kv.Key.Item2}");
         }
-        Debug.Log($"FootstepBank loaded: {TotalClips()} total clips");
     }
 }

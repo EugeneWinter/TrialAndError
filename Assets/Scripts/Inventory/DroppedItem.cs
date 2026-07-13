@@ -1,4 +1,6 @@
 using UnityEngine;
+using Unity.Mathematics;
+using Random = UnityEngine.Random;
 
 public class DroppedItem : MonoBehaviour
 {
@@ -6,36 +8,56 @@ public class DroppedItem : MonoBehaviour
     public int count = 1;
 
     private float bobTime;
-    private Vector3 startPos;
     private float pickupDelay = 0.5f;
     private GameObject visualModel;
 
+    private Vector3 velocity;
+    private bool onGround = false;
+    private float gravity = 15f;
+    private float3 size = new float3(0.3f, 0.3f, 0.3f);
+
+    private const float MERGE_DISTANCE = 0.6f;
+
     void Start()
     {
-        startPos = transform.position;
         bobTime = Random.Range(0f, Mathf.PI * 2);
         SpawnVisual();
+        velocity = new Vector3(Random.Range(-1f, 1f), Random.Range(2f, 4f), Random.Range(-1f, 1f));
     }
 
     void SpawnVisual()
     {
         ItemSO item = Inventory.Instance.itemDatabase.GetItem(blockId);
+
         if (item != null && item.heldModel != null)
         {
             visualModel = Instantiate(item.heldModel, transform);
             visualModel.transform.localPosition = Vector3.zero;
             visualModel.transform.localScale = Vector3.one * 0.5f;
+            return;
+        }
+
+        BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(blockId);
+        if (block != null)
+        {
+            visualModel = BlockPreviewFactory.CreateMiniBlock(block, WorldManager.Instance.blockDatabase.textureArray);
+            visualModel.transform.SetParent(transform);
+            visualModel.transform.localPosition = Vector3.zero;
+            visualModel.transform.localScale = Vector3.one * 0.3f;
         }
     }
 
     void Update()
     {
-        bobTime += Time.deltaTime * 2f;
-        transform.position = startPos + Vector3.up * Mathf.Sin(bobTime) * 0.1f;
-        transform.Rotate(Vector3.up * 90f * Time.deltaTime);
+        float dt = Time.deltaTime;
 
-        pickupDelay -= Time.deltaTime;
+        UpdatePhysics(dt);
+        UpdateVisual(dt);
+
+        pickupDelay -= dt;
         if (pickupDelay > 0) return;
+
+        TryMergeWithNearby();
 
         GameObject player = GameObject.FindWithTag("Player");
         if (player == null) return;
@@ -50,13 +72,105 @@ public class DroppedItem : MonoBehaviour
                 {
                     AudioClip clip = SoundBanks.ItemPickup.GetRandom();
                     if (clip != null)
-                    {
                         AudioManager.Instance.PlaySampleUI(clip, 0.6f, Random.Range(0.95f, 1.05f));
-                    }
                 }
-
                 Destroy(gameObject);
             }
         }
+    }
+
+    void UpdatePhysics(float dt)
+    {
+        velocity.y -= gravity * dt;
+
+        Vector3 pos = transform.position;
+
+        pos.x += velocity.x * dt;
+        if (CheckCollision(pos)) { pos.x -= velocity.x * dt; velocity.x *= -0.3f; }
+
+        pos.z += velocity.z * dt;
+        if (CheckCollision(pos)) { pos.z -= velocity.z * dt; velocity.z *= -0.3f; }
+
+        onGround = false;
+        pos.y += velocity.y * dt;
+        if (CheckCollision(pos))
+        {
+            pos.y -= velocity.y * dt;
+            if (velocity.y < 0) onGround = true;
+            velocity.y = 0;
+        }
+
+        if (onGround)
+        {
+            velocity.x *= 0.85f;
+            velocity.z *= 0.85f;
+        }
+
+        transform.position = pos;
+    }
+
+    private float currentLift = 0f;
+
+    void UpdateVisual(float dt)
+    {
+        if (visualModel == null) return;
+
+        float modelHalfHeight = visualModel.transform.localScale.y * 0.5f;
+        float targetLift = onGround ? 0.15f : 0f;
+
+        currentLift = Mathf.Lerp(currentLift, targetLift, 8f * dt);
+
+        if (onGround)
+        {
+            bobTime += dt * 1.5f;
+            float bobY = (Mathf.Sin(bobTime) + 1f) * 0.5f * 0.04f;
+            visualModel.transform.localPosition = new Vector3(0, modelHalfHeight + currentLift + bobY, 0);
+            visualModel.transform.Rotate(Vector3.up * 40f * dt);
+        }
+        else
+        {
+            visualModel.transform.localPosition = new Vector3(0, modelHalfHeight + currentLift, 0);
+            visualModel.transform.Rotate(Vector3.up * 90f * dt);
+        }
+    }
+
+    void TryMergeWithNearby()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, MERGE_DISTANCE);
+        foreach (var hit in hits)
+        {
+            DroppedItem other = hit.GetComponent<DroppedItem>();
+            if (other == null || other == this) continue;
+            if (other.blockId != blockId) continue;
+            if (other.pickupDelay > 0) continue;
+
+            if (other.GetInstanceID() < GetInstanceID())
+            {
+                other.count += count;
+                Destroy(gameObject);
+                return;
+            }
+        }
+    }
+
+    bool CheckCollision(Vector3 pos)
+    {
+        AABB box = AABB.FromPositionSize(pos, size);
+        int minX = (int)math.floor(box.min.x);
+        int maxX = (int)math.floor(box.max.x);
+        int minY = (int)math.floor(box.min.y);
+        int maxY = (int)math.floor(box.max.y);
+        int minZ = (int)math.floor(box.min.z);
+        int maxZ = (int)math.floor(box.max.z);
+
+        for (int x = minX; x <= maxX; x++)
+            for (int y = minY; y <= maxY; y++)
+                for (int z = minZ; z <= maxZ; z++)
+                {
+                    AABB blockBox = new AABB(new float3(x, y, z), new float3(x + 1, y + 1, z + 1));
+                    if (WorldManager.Instance.IsBlockSolid(x, y, z) && box.Intersects(blockBox))
+                        return true;
+                }
+        return false;
     }
 }

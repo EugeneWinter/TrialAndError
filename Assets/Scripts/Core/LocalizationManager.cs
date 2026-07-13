@@ -35,8 +35,6 @@ public class LocalizationManager : MonoBehaviour
         {
             translations[entry.key] = entry.value;
         }
-
-        Debug.Log($"Loaded {translations.Count} translations for {lang}");
     }
 
     public string Get(string key)

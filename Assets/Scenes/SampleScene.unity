@@ -805,7 +805,7 @@ GameObject:
   m_Component:
   - component: {fileID: 330585546}
   - component: {fileID: 330585545}
-  - component: {fileID: 330585544}
+  - component: {fileID: 330585548}
   - component: {fileID: 330585547}
   m_Layer: 0
   m_Name: Main Camera
@@ -814,14 +814,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &330585544
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 330585543}
-  m_Enabled: 1
 --- !u!20 &330585545
 Camera:
   m_ObjectHideFlags: 0
@@ -935,6 +927,14 @@ MonoBehaviour:
     m_MipBias: 0
     m_VarianceClampScale: 0.9
     m_ContrastAdaptiveSharpening: 0
+--- !u!81 &330585548
+AudioListener:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 330585543}
+  m_Enabled: 1
 --- !u!1 &334002169
 GameObject:
   m_ObjectHideFlags: 0
@@ -1169,7 +1169,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   minutesPerHour: 1
   startDay: 121
-  startHour: 12
+  startHour: 5
   currentDay: 0
   currentTimeMinutes: 0
 --- !u!4 &369905913
@@ -1845,6 +1845,7 @@ GameObject:
   - component: {fileID: 555302990}
   - component: {fileID: 555302991}
   - component: {fileID: 555302992}
+  - component: {fileID: 555302993}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -2021,6 +2022,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   handAnchor: {fileID: 153974035}
+--- !u!114 &555302993
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 555302985}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51edc9c104c8af443876b3b9790f2ca5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  voiceVolume: 0.7
+  pitchVariation: 0.1
+  jumpVoiceChance: 0.4
+  gaspFallThreshold: 8
+  landingHurtChance: 0.6
+  sprintTimeBeforeBreathing: 3
+  breathingCooldown: 8
+  breathingRecoveryRate: 0.3
 --- !u!1 &573394475
 GameObject:
   m_ObjectHideFlags: 0
@@ -2988,7 +3009,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1433628133}
   - component: {fileID: 1433628132}
-  - component: {fileID: 1433628134}
+  - component: {fileID: 1433628135}
   m_Layer: 0
   m_Name: AudioManager
   m_TagString: Untagged
@@ -3008,30 +3029,18 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 525edb7e433597248b20f33a6112169b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  footstepGrass: {fileID: 0}
-  footstepStone: {fileID: 0}
-  footstepDirt: {fileID: 11400000, guid: 660c45521fd466341bc89f280ef88ba7, type: 2}
-  footstepWood: {fileID: 11400000, guid: 96c506ee9488902438f24c710aa180b1, type: 2}
-  footstepSand: {fileID: 11400000, guid: 448a80bb16d68b846bb31dcad7a90fba, type: 2}
-  footstepMetal: {fileID: 11400000, guid: d19a964436755dd48aa33afd561b89cf, type: 2}
-  footstepWater: {fileID: 11400000, guid: 27a18450c4eaa05458fe9e1b7a4aac43, type: 2}
-  footstepSnow: {fileID: 11400000, guid: 800c33211fca4b948be35ce038d89265, type: 2}
-  blockBreak: {fileID: 11400000, guid: b1e2a7a4def9f4b43b7ceac12abe8e2f, type: 2}
-  blockPlace: {fileID: 11400000, guid: 1c24753db49ccb140b1bf47a48aa6443, type: 2}
-  blockDig: {fileID: 11400000, guid: 3a48e33710da3b54fa3c186a11a40708, type: 2}
-  itemPickup: {fileID: 11400000, guid: aebd345d8362bc046a9f250fae77c204, type: 2}
-  itemDrop: {fileID: 11400000, guid: 34f5c2a3351640c46a0274ae41a468a5, type: 2}
-  itemEquip: {fileID: 11400000, guid: 85590ec527059754d961d71a13f05fec, type: 2}
-  knappingHit: {fileID: 11400000, guid: 157c706ee967a3a4fa23386c615e6c32, type: 2}
-  knappingSuccess: {fileID: 11400000, guid: 7badc54317c30164d88e09f212d29cdc, type: 2}
-  knappingFail: {fileID: 11400000, guid: 0a591dab9b163804f9c65253c0fe3945, type: 2}
-  matStone: {fileID: 0}
-  matDirt: {fileID: 0}
-  matWood: {fileID: 0}
-  matSand: {fileID: 0}
-  matMetal: {fileID: 0}
-  matGlass: {fileID: 0}
-  matClay: {fileID: 0}
+  footstepPitchVar: 0.1
+  footstepVolumeVar: 0.08
+  footstepBaseVolume: 0.7
+  sneakVolumeScale: 0.5
+  sneakPitchVarBoost: 0.05
+  processFootstepSamples: 0
+  blockBreakPitchMin: 0.65
+  blockBreakPitchMax: 0.85
+  blockBreakVolume: 0.85
+  digPitchMin: 0.75
+  digPitchMax: 0.95
+  digVolume: 0.55
   poolSize: 10
 --- !u!4 &1433628133
 Transform:
@@ -3048,7 +3057,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &1433628134
+--- !u!114 &1433628135
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -3057,9 +3066,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 1433628131}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 95c38c251ca7c3f4aa783c5d03ab5f70, type: 3}
+  m_Script: {fileID: 11500000, guid: f32f3f0d711793146be6bf271241ad3e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  masterAmbientVolume: 0.05
+  windDayVolume: 0.35
+  windNightVolume: 0.5
+  birdsMorningVolume: 0.5
+  birdsDayVolume: 0.15
+  nightVolume: 0.45
+  caveVolume: 0.6
+  useBlocksAboveDetection: 1
+  blocksAboveThreshold: 5
+  caveCheckHeight: 20
+  caveDepthThreshold: 25
+  dayStartHour: 6
+  dayEndHour: 20
+  birdsMorningStart: 5
+  birdsMorningEnd: 11
+  birdsDayEnd: 18
+  fadeSpeed: 0.3
 --- !u!1 &1494815128
 GameObject:
   m_ObjectHideFlags: 0
@@ -3304,6 +3330,69 @@ Transform:
     type: 3}
   m_PrefabInstance: {fileID: 1746979512}
   m_PrefabAsset: {fileID: 0}
+--- !u!1 &1747129274
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1747129276}
+  - component: {fileID: 1747129275}
+  m_Layer: 0
+  m_Name: BlockParticleSystem
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1747129275
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1747129274}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 74c44186020a8cb428f4bec1bc2df4b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  particlePrefab: {fileID: 1894964401599196860, guid: 042303707bfebe248934d72a98f8d87b,
+    type: 3}
+  poolSize: 500
+  breakParticleCount: 60
+  breakParticleLifetime: 1.5
+  breakVelocityMin: 2
+  breakVelocityMax: 5
+  breakVelocityUp: 3
+  digParticleCount: 12
+  digParticleLifetime: 0.8
+  digVelocityMin: 3
+  digVelocityMax: 2
+  placeParticleCount: 24
+  placeParticleLifetime: 0.6
+  placeVelocityMin: 0.5
+  placeVelocityMax: 1.5
+  particleGravity: 15
+  particleDrag: 2
+  particleScale: 0.06
+--- !u!4 &1747129276
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1747129274}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 568.34247, y: 380.16385, z: -39.50936}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1800527010
 GameObject:
   m_ObjectHideFlags: 0
@@ -3339,7 +3428,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 1}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -100.7, y: -30.3}
+  m_AnchoredPosition: {x: -100.69995, y: -30.300049}
   m_SizeDelta: {x: 300, y: 60}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1800527012
@@ -3656,3 +3745,4 @@ SceneRoots:
   - {fileID: 12213607}
   - {fileID: 233582655}
   - {fileID: 1433628133}
+  - {fileID: 1747129276}

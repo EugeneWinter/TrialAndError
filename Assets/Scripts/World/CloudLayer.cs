@@ -138,8 +138,6 @@ public class CloudLayer : MonoBehaviour
         float windStrength = Random.Range(0.2f, 1.5f);
         targetWindX = Mathf.Cos(windAngle) * windStrength;
         targetWindZ = Mathf.Sin(windAngle) * windStrength;
-
-        Debug.Log($"New weather: threshold={targetThreshold:F2}, scale={targetScale:F3}, wind=({targetWindX:F2}, {targetWindZ:F2})");
     }
 
     void UpdateChunks(int centerX, int centerZ)
