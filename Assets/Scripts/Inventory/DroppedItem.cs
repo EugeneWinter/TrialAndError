@@ -46,14 +46,13 @@ public class DroppedItem : MonoBehaviour
         {
             if (Inventory.Instance.AddItem(blockId, count))
             {
-                try
+                if (AudioManager.Instance != null)
                 {
-                    if (AudioManager.Instance != null && AudioManager.Instance.itemPickup != null)
-                        AudioManager.Instance.PlayUI(AudioManager.Instance.itemPickup);
-                }
-                catch (System.Exception e)
-                {
-                    Debug.LogWarning($"Failed to play pickup sound: {e.Message}");
+                    AudioClip clip = SoundBanks.ItemPickup.GetRandom();
+                    if (clip != null)
+                    {
+                        AudioManager.Instance.PlaySampleUI(clip, 0.6f, Random.Range(0.95f, 1.05f));
+                    }
                 }
 
                 Destroy(gameObject);

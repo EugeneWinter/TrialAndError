@@ -9,60 +9,60 @@ MonoBehaviour:
   m_GameObject: {fileID: 0}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: f97c294064a5e4e46884ec62e2a41de5, type: 3}
+  m_Script: {fileID: 11500000, guid: d9def7255afcbfe458828cfb7fce69db, type: 3}
   m_Name: FootstepStone
   m_EditorClassIdentifier: 
-  duration: 0.15
+  duration: 0.25
   volume: 0.5
-  clickLevel: 0
+  clickLevel: 0.5
   clickFreq: 3000
-  clickDecay: 100
-  thumpFreq: 60
-  thumpDecay: 20
-  thumpPunch: 150
-  noiseColor: 0
-  noiseAmount: 0.5
-  noiseDecay: 15
-  noiseLp: 8000
-  noiseHp: 100
+  clickDecay: 300
+  thumpFreq: 55
+  thumpDecay: 18
+  thumpPunch: 35
+  noiseColor: 2
+  noiseAmount: 0.4
+  noiseDecay: 18
+  noiseLp: 1800
+  noiseHp: 60
   noiseAttack: 0
-  noise2Color: 0
-  noise2Amount: 0
-  noise2Decay: 15
-  noise2Lp: 8000
-  noise2Hp: 100
-  f0: 200
-  waveShape: 0
-  m1Ratio: 2.1
-  m2Ratio: 3.4
-  m3Ratio: 4.8
-  m4Ratio: 6.3
+  noise2Color: 1
+  noise2Amount: 0.12
+  noise2Decay: 10
+  noise2Lp: 3500
+  noise2Hp: 400
+  f0: 160
+  waveShape: 1
+  m1Ratio: 1.8
+  m2Ratio: 2.5
+  m3Ratio: 3.2
+  m4Ratio: 4.1
   m5Ratio: 8.1
-  m1Decay: 10
-  m2Decay: 15
-  m3Decay: 20
-  m4Decay: 25
-  m5Decay: 30
-  m1Level: 0.5
-  m2Level: 0.25
-  m3Level: 0.125
-  m4Level: 0.0625
-  m5Level: 0.03125
-  modalMix: 0.5
-  modalMixEnd: 0.5
-  modalMixTime: 0
-  fmFreq: 1000
+  m1Decay: 8
+  m2Decay: 12
+  m3Decay: 16
+  m4Decay: 20
+  m5Decay: 25
+  m1Level: 1
+  m2Level: 0.6
+  m3Level: 0.3
+  m4Level: 0.1
+  m5Level: 0.05
+  modalMix: 0.3
+  modalMixEnd: 0.65
+  modalMixTime: 0.04
+  fmFreq: 800
   fmAmount: 0
-  fmDecay: 25
-  fm2Freq: 500
+  fmDecay: 15
+  fm2Freq: 400
   fm2Amount: 0
-  fm2Decay: 25
+  fm2Decay: 15
   subOscFreq: 0
   subOscAmount: 0
-  subOscDecay: 10
+  subOscDecay: 8
   ringModFreq: 0
   ringModAmount: 0
-  ringModDecay: 10
+  ringModDecay: 8
   wavefoldAmount: 0
   drive: 0
   bitcrushBits: 16
@@ -72,9 +72,9 @@ MonoBehaviour:
   bitcrushRate2: 48000
   bitcrushMix2: 0
   attackTime: 0.001
-  decayTime: 0.05
-  sustainLevel: 0.2
-  releaseTime: 0.05
+  decayTime: 0.04
+  sustainLevel: 0
+  releaseTime: 0.12
   formant1Freq: 0
   formant1Q: 0
   formant2Freq: 0
@@ -102,8 +102,8 @@ MonoBehaviour:
   filterFreq: 0
   filterQ: 0
   filterEnvAmount: 0
-  filterEnvDecay: 10
-  filterMode: 1
+  filterEnvDecay: 8
+  filterMode: 0
   bodyResonance: 0
   bodySize: 1
   combFreq: 0
@@ -120,9 +120,9 @@ MonoBehaviour:
   tremoloRate: 0
   tremoloDepth: 0
   earlyRefLevel: 0
-  earlyRefDecay: 10
+  earlyRefDecay: 8
   earlyRefTaps: 0
   stereoWidth: 0
   pitchVar: 0.1
-  timbreVar: 0.1
-  variantCount: 4
+  timbreVar: 0.12
+  variantCount: 6

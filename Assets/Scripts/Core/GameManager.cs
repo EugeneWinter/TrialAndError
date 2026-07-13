@@ -42,20 +42,20 @@ public class GameManager : MonoBehaviour
     {
         state = GameState.Paused;
         Time.timeScale = 0f;
+        AudioListener.pause = true;
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         if (pauseMenuUI != null) pauseMenuUI.SetActive(true);
     }
-
     public void Resume()
     {
         state = GameState.Playing;
         Time.timeScale = 1f;
+        AudioListener.pause = false;
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
         if (pauseMenuUI != null) pauseMenuUI.SetActive(false);
     }
-
     public void ExitGame()
     {
 #if UNITY_EDITOR

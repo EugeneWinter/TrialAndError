@@ -53,11 +53,13 @@ public class VoxelInteraction : MonoBehaviour
         if (!playerBox.Intersects(blockBox))
         {
             WorldManager.Instance.SetBlock(placePos.x, placePos.y, placePos.z, selectedBlock);
+
             if (AudioManager.Instance != null)
             {
                 Vector3 blockCenter = new Vector3(placePos.x + 0.5f, placePos.y + 0.5f, placePos.z + 0.5f);
-                AudioManager.Instance.Play3D(AudioManager.Instance.blockPlace, blockCenter);
+                AudioManager.Instance.PlayFootstep(FootstepAction.Drop, selectedBlock, blockCenter, 1.0f);
             }
+
             Inventory.Instance.RemoveSelected();
         }
     }

@@ -57,17 +57,21 @@ public class KnappingGame : MonoBehaviour
             if (success)
             {
                 if (AudioManager.Instance != null)
-                    AudioManager.Instance.PlayUI(AudioManager.Instance.knappingSuccess);
-
+                {
+                    AudioClip clip = SoundBanks.ItemPickup.GetRandom();
+                    if (clip != null)
+                        AudioManager.Instance.PlaySampleUI(clip, 0.8f, 1.2f);
+                }
                 Inventory.Instance.AddItem(currentRecipe.outputItemId, currentRecipe.outputCount);
-                Debug.Log($"Knapping success! Created {currentRecipe.recipeName}");
             }
             else
             {
                 if (AudioManager.Instance != null)
-                    AudioManager.Instance.PlayUI(AudioManager.Instance.knappingFail);
-
-                Debug.Log("Knapping failed! Stone lost.");
+                {
+                    AudioClip clip = SoundBanks.VoiceSigh.GetRandom();
+                    if (clip != null)
+                        AudioManager.Instance.PlaySampleUI(clip, 0.5f);
+                }
             }
         }
 
@@ -116,29 +120,33 @@ public class KnappingGame : MonoBehaviour
     void Hit()
     {
         impactAnim = 1f;
+        bool accurate = cursorPosition >= targetMin && cursorPosition <= targetMax;
 
-        if (cursorPosition >= targetMin && cursorPosition <= targetMax)
+        if (AudioManager.Instance != null)
         {
-            if (AudioManager.Instance != null)
-                AudioManager.Instance.PlayUI(AudioManager.Instance.knappingHit);
+            AudioClip clip = SoundBanks.BlockHitWood.GetRandom();
+            if (clip != null)
+            {
+                float pitch = accurate ? Random.Range(1.0f, 1.1f) : Random.Range(0.7f, 0.85f);
+                float volume = accurate ? 0.7f : 0.5f;
+                AudioManager.Instance.PlaySampleUI(clip, volume, pitch);
+            }
+        }
 
+        if (accurate)
+        {
             hitsRemaining--;
             cursorSpeed += 0.15f;
             RandomizeTarget();
 
             if (hitsRemaining <= 0)
-            {
                 Stop(true);
-            }
         }
         else
         {
             mistakesRemaining--;
-
             if (mistakesRemaining <= 0)
-            {
                 Stop(false);
-            }
         }
     }
 

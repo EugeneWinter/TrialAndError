@@ -18,6 +18,9 @@ public class BlockBreakingSystem : MonoBehaviour
     private MeshRenderer overlayRenderer;
     private Material overlayMaterial;
 
+    private float digTimer = 0f;
+    private float digInterval = 0.35f;
+
     void Awake() => Instance = this;
 
     void Start()
@@ -35,6 +38,8 @@ public class BlockBreakingSystem : MonoBehaviour
 
         currentBlockPos = blockPos;
         breakProgress = 0f;
+        digTimer = 0f;
+        digInterval = 0.35f;
 
         ushort blockId = WorldManager.Instance.GetBlock(blockPos.x, blockPos.y, blockPos.z);
         BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(blockId);
@@ -71,7 +76,6 @@ public class BlockBreakingSystem : MonoBehaviour
     private float CalculateBreakTime(BlockSO block, ItemSO tool)
     {
         float baseTime = block.hardness;
-
         if (tool == null) return baseTime * 3f;
 
         bool effective = tool.effectiveOn != null && tool.effectiveOn.Contains(block.category);
@@ -91,6 +95,14 @@ public class BlockBreakingSystem : MonoBehaviour
         breakProgress += Time.deltaTime;
         float ratio = breakProgress / totalBreakTime;
 
+        digTimer += Time.deltaTime;
+        if (digTimer >= digInterval)
+        {
+            PlayDigStep();
+            digTimer = 0f;
+            digInterval = Mathf.Lerp(0.35f, 0.2f, ratio);
+        }
+
         int crackStage = Mathf.FloorToInt(ratio * crackTextures.Length);
         crackStage = Mathf.Clamp(crackStage, 0, crackTextures.Length - 1);
         overlayMaterial.mainTexture = crackTextures[crackStage];
@@ -99,6 +111,19 @@ public class BlockBreakingSystem : MonoBehaviour
         {
             CompleteBreaking();
         }
+    }
+
+    void PlayDigStep()
+    {
+        if (AudioManager.Instance == null) return;
+
+        ushort id = WorldManager.Instance.GetBlock(currentBlockPos.x, currentBlockPos.y, currentBlockPos.z);
+        if (id == 0) return;
+
+        float progress = breakProgress / totalBreakTime;
+        Vector3 p = new Vector3(currentBlockPos.x + 0.5f, currentBlockPos.y + 0.5f, currentBlockPos.z + 0.5f);
+
+        AudioManager.Instance.PlayDigHit(id, p, progress);
     }
 
     public void StopBreaking()
@@ -112,19 +137,19 @@ public class BlockBreakingSystem : MonoBehaviour
     {
         Vector3 blockCenter = new Vector3(currentBlockPos.x + 0.5f, currentBlockPos.y + 0.5f, currentBlockPos.z + 0.5f);
 
-        if (AudioManager.Instance != null)
-            AudioManager.Instance.Play3D(AudioManager.Instance.blockBreak, blockCenter);
-
         ushort blockId = WorldManager.Instance.GetBlock(currentBlockPos.x, currentBlockPos.y, currentBlockPos.z);
         BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(blockId);
+
+        if (AudioManager.Instance != null)
+        {
+            AudioManager.Instance.PlayBlockBreak(blockId, blockCenter);
+        }
 
         WorldManager.Instance.SetBlock(currentBlockPos.x, currentBlockPos.y, currentBlockPos.z, 0);
 
         if (block != null && block.dropId != 0)
         {
-            ItemSpawner.Instance.SpawnItem(
-                new Vector3(currentBlockPos.x + 0.5f, currentBlockPos.y + 0.5f, currentBlockPos.z + 0.5f),
-                block.dropId);
+            ItemSpawner.Instance.SpawnItem(blockCenter, block.dropId);
         }
 
         StopBreaking();

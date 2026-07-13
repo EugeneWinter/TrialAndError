@@ -55,6 +55,14 @@ public class PlayerController : MonoBehaviour
     private bool wasOnGround = false;
     private bool justLanded = false;
     private float landingCooldown = 0f;
+    private float lastFallVelocity = 0f;
+
+    struct FootBlocks
+    {
+        public ushort primary;
+        public ushort secondary;
+        public float blend;
+    }
 
     void Start()
     {
@@ -72,6 +80,10 @@ public class PlayerController : MonoBehaviour
 
         HandleLook(dt);
         HandleMovement(dt);
+
+        if (!onGround && velocity.y < 0f)
+            lastFallVelocity = velocity.y;
+
         HandleCollisions(ref pos, dt);
         UpdateCameraHeight(dt);
         UpdateFOV(dt);
@@ -84,12 +96,17 @@ public class PlayerController : MonoBehaviour
 
         if (!wasOnGround && onGround && landingCooldown <= 0f)
         {
-            PlayFootstep();
+            PlayLanding();
             justLanded = true;
             bobTimer = 0f;
             landingCooldown = 0.2f;
         }
         wasOnGround = onGround;
+
+        if (PlayerVoice.Instance != null)
+        {
+            PlayerVoice.Instance.OnSprint(dt, isSprinting && IsMoving());
+        }
     }
 
     void HandleLook(float dt)
@@ -144,7 +161,7 @@ public class PlayerController : MonoBehaviour
         {
             velocity.y = jumpHeight;
             onGround = false;
-            PlayFootstep();
+            PlayJump();
         }
 
         velocity.y -= gravity * dt;
@@ -177,14 +194,18 @@ public class PlayerController : MonoBehaviour
         {
             float freq = walkBobFrequency;
             float amp = walkBobAmplitude;
+            float refSpeed = walkSpeed;
 
-            if (isSprinting) { freq = sprintBobFrequency; amp = sprintBobAmplitude; }
-            else if (isSneaking) { freq = sneakBobFrequency; amp = sneakBobAmplitude; }
+            if (isSprinting) { freq = sprintBobFrequency; amp = sprintBobAmplitude; refSpeed = sprintSpeed; }
+            else if (isSneaking) { freq = sneakBobFrequency; amp = sneakBobAmplitude; refSpeed = sneakSpeed; }
 
-            bobTimer += dt * freq;
+            Vector3 horizontal = new Vector3(velocity.x, 0, velocity.z);
+            float speedRatio = Mathf.Clamp01(horizontal.magnitude / refSpeed);
 
-            float bobY = Mathf.Sin(bobTimer) * amp;
-            float bobX = Mathf.Cos(bobTimer * 0.5f) * amp * 0.5f;
+            bobTimer += dt * freq * speedRatio;
+
+            float bobY = Mathf.Sin(bobTimer) * amp * speedRatio;
+            float bobX = Mathf.Cos(bobTimer * 0.5f) * amp * 0.5f * speedRatio;
 
             targetBob = new Vector3(bobX, bobY, 0);
         }
@@ -219,21 +240,115 @@ public class PlayerController : MonoBehaviour
     {
         if (AudioManager.Instance == null) return;
 
-        int fx = Mathf.FloorToInt(transform.position.x);
-        int fy = Mathf.FloorToInt(transform.position.y - 0.1f);
-        int fz = Mathf.FloorToInt(transform.position.z);
+        FootBlocks blocks = FindBlocksUnderFeet();
+        if (blocks.primary == 0) return;
 
-        ushort blockUnder = WorldManager.Instance.GetBlock(fx, fy, fz);
-        if (blockUnder == 0) return;
+        FootstepAction action = FootstepAction.Walk;
+        if (isSprinting) action = FootstepAction.Run;
+        else if (isSneaking) action = FootstepAction.Sneak;
 
-        SfxPreset footstep = AudioManager.Instance.GetFootstepForBlock(blockUnder);
-        AudioManager.Instance.Play3D(footstep, transform.position);
+        float stepVel = isSprinting ? 1.4f : (isSneaking ? 0.5f : 1.0f);
+
+        AudioManager.Instance.PlayFootstepBlended(
+            action,
+            blocks.primary,
+            blocks.secondary,
+            blocks.blend,
+            transform.position,
+            stepVel);
+    }
+
+    void PlayJump()
+    {
+        if (AudioManager.Instance == null) return;
+
+        FootBlocks blocks = FindBlocksUnderFeet();
+        if (blocks.primary == 0) return;
+
+        AudioManager.Instance.PlayFootstep(FootstepAction.Jump, blocks.primary, transform.position, 1.2f);
+
+        if (PlayerVoice.Instance != null)
+            PlayerVoice.Instance.OnJump();
+    }
+
+    void PlayLanding()
+    {
+        if (AudioManager.Instance == null) return;
+
+        FootBlocks blocks = FindBlocksUnderFeet();
+        if (blocks.primary == 0) return;
+
+        float landingVel = Mathf.Clamp(Mathf.Abs(lastFallVelocity) / 10f + 1.0f, 1.0f, 1.6f);
+        AudioManager.Instance.PlayFootstep(FootstepAction.Drop, blocks.primary, transform.position, landingVel);
+
+        if (PlayerVoice.Instance != null)
+            PlayerVoice.Instance.OnLanding(lastFallVelocity);
+
+        lastFallVelocity = 0f;
+    }
+
+    FootBlocks FindBlocksUnderFeet()
+    {
+        FootBlocks result = new FootBlocks();
+
+        float yBelow = transform.position.y - 0.1f;
+        int fy = Mathf.FloorToInt(yBelow);
+
+        float x = transform.position.x;
+        float z = transform.position.z;
+
+        int cx = Mathf.FloorToInt(x);
+        int cz = Mathf.FloorToInt(z);
+
+        ushort centerBlock = WorldManager.Instance.GetBlock(cx, fy, cz);
+
+        float fracX = x - cx;
+        float fracZ = z - cz;
+
+        float distToEdgeX = Mathf.Min(fracX, 1f - fracX);
+        float distToEdgeZ = Mathf.Min(fracZ, 1f - fracZ);
+        float distToEdge = Mathf.Min(distToEdgeX, distToEdgeZ);
+
+        float edgeThreshold = 0.35f;
+        float blendFactor = 0f;
+        int dx = 0, dz = 0;
+
+        if (distToEdge < edgeThreshold)
+        {
+            blendFactor = 1f - (distToEdge / edgeThreshold);
+
+            if (distToEdgeX < distToEdgeZ)
+                dx = fracX < 0.5f ? -1 : 1;
+            else
+                dz = fracZ < 0.5f ? -1 : 1;
+        }
+
+        ushort neighborBlock = (dx != 0 || dz != 0) ? WorldManager.Instance.GetBlock(cx + dx, fy, cz + dz) : (ushort)0;
+
+        if (centerBlock != 0)
+        {
+            result.primary = centerBlock;
+            result.secondary = neighborBlock;
+            result.blend = blendFactor;
+        }
+        else if (neighborBlock != 0)
+        {
+            result.primary = neighborBlock;
+            result.secondary = 0;
+            result.blend = 0f;
+        }
+        else
+        {
+            result.primary = 0;
+        }
+
+        return result;
     }
 
     bool IsMoving()
     {
         Vector3 horizontal = new Vector3(velocity.x, 0, velocity.z);
-        return horizontal.magnitude > 0.5f;
+        return horizontal.magnitude > 0.05f;
     }
 
     void HandleCollisions(ref float3 pos, float dt)
