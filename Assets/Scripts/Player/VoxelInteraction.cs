@@ -25,7 +25,7 @@ public class VoxelInteraction : MonoBehaviour
 
     void HandleBreaking(RaycastResult hit)
     {
-        if (Input.GetMouseButton(0))
+        if (InputManager.Instance.AttackHeld)
         {
             BlockBreakingSystem.Instance.StartBreaking(hit.blockPos, hit.normal);
             BlockBreakingSystem.Instance.ContinueBreaking();

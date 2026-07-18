@@ -131,10 +131,10 @@ Material:
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BottomColor: {r: 0.89393395, g: 0.8414214, b: 0.85355365, a: 1}
+    - _BottomColor: {r: 0.85, g: 0.9, b: 1, a: 1}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MiddleColor: {r: 0.6878678, g: 0.72677684, b: 0.85355365, a: 1}
+    - _MiddleColor: {r: 0.6, g: 0.8, b: 1, a: 1}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _TopColor: {r: 0.26464465, g: 0.49142146, b: 0.8474875, a: 1}
+    - _TopColor: {r: 0.25, g: 0.55, b: 0.95, a: 1}
   m_BuildTextureStacks: []

@@ -46,8 +46,22 @@ public class AtmosphereController : MonoBehaviour
     public bool enableFog = true;
     public float fogDensity = 0.003f;
 
+    [Header("Skylight Color (ambient tint)")]
+    public Color nightSkyLight = new Color(0.08f, 0.1f, 0.2f);
+    public Color dawnSkyLight = new Color(1.0f, 0.6f, 0.4f);
+    public Color daySkyLight = new Color(0.85f, 0.95f, 1.0f);
+    public Color duskSkyLight = new Color(1.0f, 0.55f, 0.35f);
+
+    [Header("Lighting Update")]
+    public float lightingUpdateIntervalSeconds = 30f;
+    private float lastLightUpdateHour = -999f;
+    private float lightUpdateThresholdDegrees = 15f;
+
+    public static AtmosphereController Instance;
+
     void Start()
     {
+        Instance = this;
         RenderSettings.ambientMode = UnityEngine.Rendering.AmbientMode.Flat;
         if (enableFog)
         {
@@ -65,7 +79,7 @@ public class AtmosphereController : MonoBehaviour
         float sunriseHour = TimeManager.Instance.SunriseHour;
         float sunsetHour = TimeManager.Instance.SunsetHour;
 
-        Color sunColor, skyTop, skyMiddle, skyBottom, ambientColor;
+        Color sunColor, skyTop, skyMiddle, skyBottom, ambientColor, skyLight;
         float sunIntensity;
         float starIntensity;
 
@@ -80,6 +94,7 @@ public class AtmosphereController : MonoBehaviour
             skyMiddle = nightSkyMiddle;
             skyBottom = nightSkyBottom;
             ambientColor = nightAmbient;
+            skyLight = nightSkyLight;
             starIntensity = 1f;
         }
         else if (hour < sunriseHour)
@@ -91,6 +106,7 @@ public class AtmosphereController : MonoBehaviour
             skyMiddle = Color.Lerp(nightSkyMiddle, dawnSkyMiddle, t);
             skyBottom = Color.Lerp(nightSkyBottom, dawnSkyBottom, t);
             ambientColor = Color.Lerp(nightAmbient, dawnAmbient, t);
+            skyLight = Color.Lerp(nightSkyLight, dawnSkyLight, t);
             starIntensity = Mathf.Lerp(1f, 0f, t);
         }
         else if (hour < sunriseHour + dawnDuration)
@@ -102,6 +118,7 @@ public class AtmosphereController : MonoBehaviour
             skyMiddle = Color.Lerp(dawnSkyMiddle, daySkyMiddle, t);
             skyBottom = Color.Lerp(dawnSkyBottom, daySkyBottom, t);
             ambientColor = Color.Lerp(dawnAmbient, dayAmbient, t);
+            skyLight = Color.Lerp(dawnSkyLight, daySkyLight, t);
             starIntensity = 0f;
         }
         else if (hour < sunsetHour - duskDuration)
@@ -112,6 +129,7 @@ public class AtmosphereController : MonoBehaviour
             skyMiddle = daySkyMiddle;
             skyBottom = daySkyBottom;
             ambientColor = dayAmbient;
+            skyLight = daySkyLight;
             starIntensity = 0f;
         }
         else if (hour < sunsetHour)
@@ -123,6 +141,7 @@ public class AtmosphereController : MonoBehaviour
             skyMiddle = Color.Lerp(daySkyMiddle, duskSkyMiddle, t);
             skyBottom = Color.Lerp(daySkyBottom, duskSkyBottom, t);
             ambientColor = Color.Lerp(dayAmbient, duskAmbient, t);
+            skyLight = Color.Lerp(daySkyLight, duskSkyLight, t);
             starIntensity = 0f;
         }
         else
@@ -134,6 +153,7 @@ public class AtmosphereController : MonoBehaviour
             skyMiddle = Color.Lerp(duskSkyMiddle, nightSkyMiddle, t);
             skyBottom = Color.Lerp(duskSkyBottom, nightSkyBottom, t);
             ambientColor = Color.Lerp(duskAmbient, nightAmbient, t);
+            skyLight = Color.Lerp(duskSkyLight, nightSkyLight, t);
             starIntensity = Mathf.Lerp(0f, 1f, t);
         }
 
@@ -152,6 +172,29 @@ public class AtmosphereController : MonoBehaviour
         }
 
         RenderSettings.ambientLight = ambientColor;
-        RenderSettings.fogColor = skyMiddle;
+
+        Shader.SetGlobalColor("_SkyLightColor", skyLight);
+
+        bool underwaterActive = UnderwaterVisuals.Instance != null && UnderwaterVisuals.Instance.IsUnderwater;
+        if (!underwaterActive)
+            RenderSettings.fogColor = skyMiddle;
+
+        float currentSunAngle = 0f;
+        if (CelestialCycle.Instance == null)
+        {
+            if (directionalLight != null)
+                currentSunAngle = directionalLight.transform.eulerAngles.x;
+        }
+        else
+        {
+            currentSunAngle = hour * 15f;
+        }
+
+        if (Mathf.Abs(currentSunAngle - lastLightUpdateHour) > lightUpdateThresholdDegrees)
+        {
+            lastLightUpdateHour = currentSunAngle;
+            if (WorldManager.Instance != null)
+                WorldManager.Instance.RecalculateLightingForAllChunks();
+        }
     }
 }

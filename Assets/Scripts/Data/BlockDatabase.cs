@@ -16,6 +16,8 @@ public class BlockDatabase : ScriptableObject
         public int south;
         public int east;
         public int west;
+        public bool isTransparent;
+        public bool isSolid;
     }
 
     private NativeArray<BlockVisualData> _visualData;
@@ -53,7 +55,9 @@ public class BlockDatabase : ScriptableObject
                 north = b.indexNorth,
                 south = b.indexSouth,
                 east = b.indexEast,
-                west = b.indexWest
+                west = b.indexWest,
+                isTransparent = b.isTransparent,
+                isSolid = b.isSolid
             };
             _lookup[b.id] = b;
         }

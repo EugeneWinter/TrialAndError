@@ -40,6 +40,7 @@ public class BlockDatabaseEditor : Editor
         Texture2DArray texArray = new Texture2DArray(size, size, uniqueTextures.Count, TextureFormat.RGBA32, false);
         texArray.filterMode = FilterMode.Point;
         texArray.wrapMode = TextureWrapMode.Repeat;
+        texArray.name = "BakedTextureArray";
 
         for (int i = 0; i < uniqueTextures.Count; i++)
         {
@@ -76,16 +77,12 @@ public class BlockDatabaseEditor : Editor
         AssetDatabase.SaveAssets();
 
         if (Application.isPlaying && WorldManager.Instance != null)
-        {
             WorldManager.Instance.RefreshAllChunks();
-        }
     }
 
     private static void AddTexture(Texture2D tex, List<Texture2D> list)
     {
         if (tex != null && !list.Contains(tex))
-        {
             list.Add(tex);
-        }
     }
 }

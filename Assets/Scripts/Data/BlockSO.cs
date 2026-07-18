@@ -10,11 +10,16 @@ public class BlockSO : ScriptableObject
     public float hardness = 1.0f;
     public bool breakable = true;
     public ushort dropId = 0;
+    public int dropCount = 1;
 
     [Header("Mining Requirements")]
     public BlockCategory category = BlockCategory.None;
     public ToolType requiredTool = ToolType.None;
     public int requiredTier = 0;
+
+    [Header("Visual Type")]
+    public bool isSolid = true;
+    public bool isTransparent = false;
 
     [Header("Textures")]
     public Texture2D texTop;

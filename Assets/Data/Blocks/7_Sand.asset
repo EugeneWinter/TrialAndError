@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2202977238d05de48ad552a1f67cf2c5, type: 3}
+  m_Name: 7_Sand
+  m_EditorClassIdentifier: 
+  id: 7
+  blockName: Sand
+  hardness: 0.5
+  breakable: 1
+  dropId: 7
+  dropCount: 1
+  category: 0
+  requiredTool: 0
+  requiredTier: 0
+  isSolid: 1
+  isTransparent: 0
+  texTop: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
+  texBottom: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
+  texNorth: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
+  texSouth: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
+  texEast: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
+  texWest: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
+  indexTop: 7
+  indexBottom: 7
+  indexNorth: 7
+  indexSouth: 7
+  indexEast: 7
+  indexWest: 7

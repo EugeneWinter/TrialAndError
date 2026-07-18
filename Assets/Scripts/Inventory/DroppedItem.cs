@@ -1,11 +1,14 @@
 using UnityEngine;
 using Unity.Mathematics;
+using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
 public class DroppedItem : MonoBehaviour
 {
     public ushort blockId;
     public int count = 1;
+
+    private static List<DroppedItem> allDroppedItems = new List<DroppedItem>();
 
     private float bobTime;
     private float pickupDelay = 0.5f;
@@ -17,12 +20,22 @@ public class DroppedItem : MonoBehaviour
     private float3 size = new float3(0.3f, 0.3f, 0.3f);
 
     private const float MERGE_DISTANCE = 0.6f;
+    private const float PICKUP_DISTANCE = 2.0f;
+
+    private float currentLift = 0f;
+    private Transform cachedPlayerTransform;
 
     void Start()
     {
         bobTime = Random.Range(0f, Mathf.PI * 2);
         SpawnVisual();
         velocity = new Vector3(Random.Range(-1f, 1f), Random.Range(2f, 4f), Random.Range(-1f, 1f));
+        allDroppedItems.Add(this);
+    }
+
+    void OnDestroy()
+    {
+        allDroppedItems.Remove(this);
     }
 
     void SpawnVisual()
@@ -58,13 +71,21 @@ public class DroppedItem : MonoBehaviour
         if (pickupDelay > 0) return;
 
         TryMergeWithNearby();
+        TryPickup();
+    }
 
-        GameObject player = GameObject.FindWithTag("Player");
-        if (player == null) return;
+    void TryPickup()
+    {
+        if (cachedPlayerTransform == null)
+        {
+            GameObject player = GameObject.FindWithTag("Player");
+            if (player != null) cachedPlayerTransform = player.transform;
+            else return;
+        }
 
-        float dist = Vector3.Distance(transform.position, player.transform.position);
+        float dist = Vector3.Distance(transform.position, cachedPlayerTransform.position);
 
-        if (dist < 2.0f)
+        if (dist < PICKUP_DISTANCE)
         {
             if (Inventory.Instance.AddItem(blockId, count))
             {
@@ -109,8 +130,6 @@ public class DroppedItem : MonoBehaviour
         transform.position = pos;
     }
 
-    private float currentLift = 0f;
-
     void UpdateVisual(float dt)
     {
         if (visualModel == null) return;
@@ -136,13 +155,17 @@ public class DroppedItem : MonoBehaviour
 
     void TryMergeWithNearby()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, MERGE_DISTANCE);
-        foreach (var hit in hits)
+        for (int i = allDroppedItems.Count - 1; i >= 0; i--)
         {
-            DroppedItem other = hit.GetComponent<DroppedItem>();
+            if (i >= allDroppedItems.Count) continue;
+
+            DroppedItem other = allDroppedItems[i];
             if (other == null || other == this) continue;
             if (other.blockId != blockId) continue;
             if (other.pickupDelay > 0) continue;
+
+            float dist = Vector3.Distance(transform.position, other.transform.position);
+            if (dist > MERGE_DISTANCE) continue;
 
             if (other.GetInstanceID() < GetInstanceID())
             {

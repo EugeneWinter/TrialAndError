@@ -29,9 +29,8 @@ public class GameManager : MonoBehaviour
     {
         if (state == GameState.Loading) return;
         if (state == GameState.Minigame) return;
-        if (KnappingGame.Instance != null && KnappingGame.Instance.JustEnded()) return;
 
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (InputManager.Instance.CancelPressed)
         {
             if (state == GameState.Playing) Pause();
             else if (state == GameState.Paused) Resume();
@@ -47,6 +46,7 @@ public class GameManager : MonoBehaviour
         Cursor.visible = true;
         if (pauseMenuUI != null) pauseMenuUI.SetActive(true);
     }
+
     public void Resume()
     {
         state = GameState.Playing;
@@ -56,12 +56,13 @@ public class GameManager : MonoBehaviour
         Cursor.visible = false;
         if (pauseMenuUI != null) pauseMenuUI.SetActive(false);
     }
+
     public void ExitGame()
     {
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
 #else
-            Application.Quit();
+        Application.Quit();
 #endif
     }
 
@@ -87,11 +88,38 @@ public class GameManager : MonoBehaviour
 
     int FindSurface(int x, int z)
     {
-        for (int y = 256; y >= 0; y--)
+        int seaLevel = worldManager.seaLevel;
+
+        for (int y = 250; y >= 0; y--)
         {
-            if (worldManager.IsBlockSolid(x, y, z))
-                return y;
+            ushort block = worldManager.GetBlock(x, y, z);
+            if (block != 0 && block != 6)
+            {
+                if (y >= seaLevel)
+                    return y;
+            }
         }
-        return 10;
+
+        for (int searchRadius = 1; searchRadius < 100; searchRadius++)
+        {
+            for (int dx = -searchRadius; dx <= searchRadius; dx++)
+                for (int dz = -searchRadius; dz <= searchRadius; dz++)
+                {
+                    if (Mathf.Abs(dx) != searchRadius && Mathf.Abs(dz) != searchRadius) continue;
+
+                    for (int y = 250; y >= seaLevel; y--)
+                    {
+                        ushort block = worldManager.GetBlock(x + dx, y, z + dz);
+                        if (block != 0 && block != 6)
+                            return y;
+                    }
+                }
+
+            x += searchRadius;
+            z += searchRadius;
+            break;
+        }
+
+        return seaLevel + 5;
     }
 }

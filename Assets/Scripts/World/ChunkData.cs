@@ -29,4 +29,29 @@ public struct ChunkData
         if (x < 0 || x >= SIZE || y < 0 || y >= SIZE || z < 0 || z >= SIZE) return;
         blocks[x + y * SIZE + z * SIZE * SIZE] = id;
     }
+
+    public NativeArray<ushort> ExtractBorderSlice(int axis, int side)
+    {
+        NativeArray<ushort> slice = new NativeArray<ushort>(SIZE * SIZE, Allocator.TempJob);
+
+        int fixedVal = side == 0 ? 0 : SIZE - 1;
+
+        for (int a = 0; a < SIZE; a++)
+        {
+            for (int b = 0; b < SIZE; b++)
+            {
+                ushort block;
+                if (axis == 0)
+                    block = GetBlock(fixedVal, a, b);
+                else if (axis == 1)
+                    block = GetBlock(a, fixedVal, b);
+                else
+                    block = GetBlock(a, b, fixedVal);
+
+                slice[a + b * SIZE] = block;
+            }
+        }
+
+        return slice;
+    }
 }

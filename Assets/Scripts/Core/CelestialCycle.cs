@@ -18,6 +18,34 @@ public class CelestialCycle : MonoBehaviour
     public Vector3 sunRotationAxis = new Vector3(0.3f, 1f, 0.2f);
     public Vector3 moonRotationAxis = new Vector3(0.5f, 1f, 0.3f);
 
+    public static CelestialCycle Instance;
+
+    void Awake()
+    {
+        Instance = this;
+    }
+
+    void Start()
+    {
+        if (sun != null)
+            SetShadowsOffRecursive(sun.gameObject);
+        if (moon != null)
+            SetShadowsOffRecursive(moon.gameObject);
+    }
+
+    void SetShadowsOffRecursive(GameObject obj)
+    {
+        Renderer r = obj.GetComponent<Renderer>();
+        if (r != null)
+        {
+            r.shadowCastingMode = UnityEngine.Rendering.ShadowCastingMode.Off;
+            r.receiveShadows = false;
+        }
+
+        foreach (Transform child in obj.transform)
+            SetShadowsOffRecursive(child.gameObject);
+    }
+
     void LateUpdate()
     {
         if (TimeManager.Instance == null) return;
@@ -36,7 +64,7 @@ public class CelestialCycle : MonoBehaviour
         float moonAngle = sunAngle + 180f;
         UpdateCelestialBody(moon, moonAngle, moonHoursPerRotation, moonRotationAxis);
 
-        UpdateDirectionalLight();
+        UpdateDirectionalLight(sunAngle);
     }
 
     float CalculateSunAngle(float hour, float sunrise, float sunset)
@@ -76,11 +104,23 @@ public class CelestialCycle : MonoBehaviour
         body.Rotate(rotAxis.normalized, rotationThisFrame, Space.World);
     }
 
-    void UpdateDirectionalLight()
+    void UpdateDirectionalLight(float sunAngleDegrees)
     {
-        if (directionalLight == null || sun == null) return;
+        if (directionalLight == null) return;
 
-        Vector3 sunDir = (transform.position - sun.position).normalized;
-        directionalLight.transform.rotation = Quaternion.LookRotation(sunDir);
+        float angleRad = sunAngleDegrees * Mathf.Deg2Rad;
+
+        Vector3 sunPosition = new Vector3(
+            -Mathf.Cos(angleRad),
+            Mathf.Sin(angleRad),
+            0.15f);
+
+        Vector3 lightDirection = -sunPosition.normalized;
+        Quaternion targetRotation = Quaternion.LookRotation(lightDirection);
+
+        directionalLight.transform.rotation = Quaternion.RotateTowards(
+            directionalLight.transform.rotation,
+            targetRotation,
+            5f * Time.deltaTime);
     }
 }

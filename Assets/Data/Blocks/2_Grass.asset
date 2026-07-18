@@ -1,0 +1,37 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2202977238d05de48ad552a1f67cf2c5, type: 3}
+  m_Name: 2_Grass
+  m_EditorClassIdentifier: 
+  id: 2
+  blockName: Grass
+  hardness: 0.6
+  breakable: 1
+  dropId: 3
+  dropCount: 1
+  category: 3
+  requiredTool: 4
+  requiredTier: 0
+  isSolid: 1
+  isTransparent: 0
+  texTop: {fileID: 2800000, guid: 99b8448191c93e0409105597718e0dcb, type: 3}
+  texBottom: {fileID: 2800000, guid: 4c0a755976b83c74cbf66ec286b11753, type: 3}
+  texNorth: {fileID: 2800000, guid: 7899497fd109c7441b64438a85639149, type: 3}
+  texSouth: {fileID: 2800000, guid: 7899497fd109c7441b64438a85639149, type: 3}
+  texEast: {fileID: 2800000, guid: 7899497fd109c7441b64438a85639149, type: 3}
+  texWest: {fileID: 2800000, guid: 7899497fd109c7441b64438a85639149, type: 3}
+  indexTop: 1
+  indexBottom: 2
+  indexNorth: 3
+  indexSouth: 3
+  indexEast: 3
+  indexWest: 3

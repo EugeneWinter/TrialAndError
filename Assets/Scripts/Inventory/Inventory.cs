@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.InputSystem;
 
 public class Inventory : MonoBehaviour
 {
@@ -9,6 +10,13 @@ public class Inventory : MonoBehaviour
     public int selectedSlot = 0;
 
     public ItemDatabase itemDatabase;
+
+    private static readonly Key[] HotbarKeys =
+    {
+        Key.Digit1, Key.Digit2, Key.Digit3,
+        Key.Digit4, Key.Digit5, Key.Digit6,
+        Key.Digit7, Key.Digit8, Key.Digit9
+    };
 
     void Awake()
     {
@@ -29,10 +37,16 @@ public class Inventory : MonoBehaviour
         if (selectedSlot < 0) selectedSlot = slotCount - 1;
         if (selectedSlot >= slotCount) selectedSlot = 0;
 
-        for (int i = 0; i < 9; i++)
+        if (Keyboard.current != null)
         {
-            if (Input.GetKeyDown(KeyCode.Alpha1 + i))
-                selectedSlot = i;
+            for (int i = 0; i < HotbarKeys.Length; i++)
+            {
+                if (Keyboard.current[HotbarKeys[i]].wasPressedThisFrame)
+                {
+                    selectedSlot = i;
+                    break;
+                }
+            }
         }
     }
 

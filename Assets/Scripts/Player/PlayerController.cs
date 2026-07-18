@@ -11,15 +11,24 @@ public class PlayerController : MonoBehaviour
     public float acceleration = 12.0f;
     public float airControl = 0.3f;
 
+    [Header("Swimming")]
+    public float swimSpeed = 3.0f;
+    public float swimUpSpeed = 4.0f;
+    public float swimDownSpeed = 3.0f;
+    public float waterDrag = 6.0f;
+    public float waterGravity = 4.0f;
+    public float waterSurfaceBobSpeed = 2.0f;
+    public float waterSurfaceBobAmount = 0.08f;
+    public float waterBreachThreshold = 0.25f;
+    public float waterBreachPeakAboveSurface = 0.5f;
+    public float waterBreachRearmDepth = 0.45f;
+    private bool waterBreachConsumed = false;
+
     [Header("Physics")]
     public float gravity = 25.0f;
     public float jumpHeight = 8.0f;
     public float3 size = new float3(0.6f, 1.8f, 0.6f);
     public float3 sneakSize = new float3(0.6f, 1.5f, 0.6f);
-
-    [Header("Camera Sensitivity")]
-    public float mouseSensitivity = 0.1f;
-    public float stickSensitivity = 200f;
 
     [Header("Camera")]
     public Transform cameraTransform;
@@ -31,6 +40,7 @@ public class PlayerController : MonoBehaviour
     [Header("FOV")]
     public float normalFOV = 75f;
     public float sprintFOV = 85f;
+    public float waterFOV = 70f;
     public float fovLerpSpeed = 8f;
 
     [Header("Head Bob")]
@@ -48,6 +58,8 @@ public class PlayerController : MonoBehaviour
     private bool onGround;
     private bool isSprinting;
     private bool isSneaking;
+    private bool isInWater;
+    private bool isSubmerged;
     private float currentCameraY;
     private float bobTimer = 0f;
     private Vector3 currentBobOffset;
@@ -56,6 +68,16 @@ public class PlayerController : MonoBehaviour
     private bool justLanded = false;
     private float landingCooldown = 0f;
     private float lastFallVelocity = 0f;
+
+    private float lastForwardTapTime = -1f;
+    private float doubleTapWindow = 0.3f;
+    private bool doubleTapSprinting = false;
+    private bool wasPressingForward = false;
+
+    private bool wasInWater = false;
+
+    public bool IsInWater => isInWater;
+    public bool IsSubmerged => isSubmerged;
 
     struct FootBlocks
     {
@@ -73,28 +95,40 @@ public class PlayerController : MonoBehaviour
     void Update()
     {
         if (GameManager.Instance.state != GameState.Playing) return;
-        if (KnappingGame.Instance != null && KnappingGame.Instance.JustEnded()) return;
 
         float dt = Time.deltaTime;
         float3 pos = transform.position;
 
+        CheckWaterState(pos);
         HandleLook(dt);
-        HandleMovement(dt);
 
-        if (!onGround && velocity.y < 0f)
+        if (isInWater)
+            HandleSwimming(dt);
+        else
+            HandleMovement(dt);
+
+        if (!onGround && velocity.y < 0f && !isInWater)
             lastFallVelocity = velocity.y;
 
         HandleCollisions(ref pos, dt);
         UpdateCameraHeight(dt);
         UpdateFOV(dt);
-        UpdateHeadBob(dt);
-        HandleFootsteps(dt);
+
+        if (!isInWater)
+        {
+            UpdateHeadBob(dt);
+            HandleFootsteps(dt);
+        }
+        else
+        {
+            UpdateSwimBob(dt);
+        }
 
         transform.position = pos;
 
         if (landingCooldown > 0f) landingCooldown -= dt;
 
-        if (!wasOnGround && onGround && landingCooldown <= 0f)
+        if (!wasOnGround && onGround && landingCooldown <= 0f && !isInWater)
         {
             PlayLanding();
             justLanded = true;
@@ -103,45 +137,177 @@ public class PlayerController : MonoBehaviour
         }
         wasOnGround = onGround;
 
+        if (!wasInWater && isInWater)
+            OnEnterWater();
+        if (wasInWater && !isInWater)
+            OnExitWater();
+        wasInWater = isInWater;
+
         if (PlayerVoice.Instance != null)
+            PlayerVoice.Instance.OnSprint(dt, isSprinting && IsMoving() && !isInWater);
+    }
+
+    void CheckWaterState(float3 pos)
+    {
+        float surfaceY = FindWaterSurfaceY(pos);
+
+        if (surfaceY == float.MinValue)
         {
-            PlayerVoice.Instance.OnSprint(dt, isSprinting && IsMoving());
+            isInWater = false;
+            isSubmerged = false;
+            return;
+        }
+
+        float feetY = pos.y;
+        float headY = pos.y + normalCameraY;
+
+        isInWater = feetY < surfaceY;
+        isSubmerged = headY < surfaceY;
+
+        if (isInWater)
+        {
+            float depthBelowSurface = surfaceY - feetY;
+            if (depthBelowSurface > waterBreachRearmDepth)
+                waterBreachConsumed = false;
         }
     }
 
-    void HandleLook(float dt)
+    float FindWaterSurfaceY(float3 pos)
     {
-        Vector2 look = InputManager.Instance.Look;
+        int px = Mathf.FloorToInt(pos.x);
+        int pz = Mathf.FloorToInt(pos.z);
+        int startY = Mathf.FloorToInt(pos.y) + 4;
 
-        bool usingGamepad = Gamepad.current != null && Gamepad.current.rightStick.ReadValue().magnitude > 0.1f;
-
-        float lookX, lookY;
-        if (usingGamepad)
+        for (int y = startY; y >= Mathf.Max(0, startY - 12); y--)
         {
-            lookX = look.x * stickSensitivity * dt;
-            lookY = look.y * stickSensitivity * dt;
+            ushort block = WorldManager.Instance.GetBlock(px, y, pz);
+            ushort above = WorldManager.Instance.GetBlock(px, y + 1, pz);
+
+            if (block == 6 && above != 6)
+                return y + 1f;
+        }
+
+        return float.MinValue;
+    }
+
+    void HandleSwimming(float dt)
+    {
+        isSprinting = false;
+        doubleTapSprinting = false;
+
+        Vector2 move = InputManager.Instance.Move;
+        isSneaking = InputManager.Instance.SneakHeld;
+
+        Vector3 forward = cameraTransform.forward;
+        Vector3 right = cameraTransform.right;
+
+        float currentSwimSpeed = swimSpeed;
+        if (InputManager.Instance.SprintHeld)
+            currentSwimSpeed = swimSpeed * 1.5f;
+        else if (isSneaking)
+            currentSwimSpeed = swimSpeed * 0.75f;
+
+        Vector3 moveDir = forward * move.y + right * move.x;
+        if (moveDir.magnitude > 1f) moveDir.Normalize();
+
+        Vector3 targetVelocity = moveDir * currentSwimSpeed;
+
+        bool jumpHeld = InputManager.Instance.JumpHeld;
+        bool sneakHeld = InputManager.Instance.SneakHeld;
+
+        float surfaceY = FindWaterSurfaceY(transform.position);
+        float feetY = transform.position.y;
+        float depthBelowSurface = surfaceY == float.MinValue ? 999f : surfaceY - feetY;
+
+        if (jumpHeld)
+        {
+            bool canBreach =
+                !waterBreachConsumed &&
+                surfaceY != float.MinValue &&
+                depthBelowSurface <= waterBreachThreshold &&
+                velocity.y >= 0f;
+
+            if (canBreach)
+            {
+                float targetPeakY = surfaceY + waterBreachPeakAboveSurface;
+                float deltaHeight = Mathf.Max(0.05f, targetPeakY - feetY);
+                velocity.y = Mathf.Sqrt(2f * gravity * deltaHeight);
+                waterBreachConsumed = true;
+                currentMoveVelocity = new Vector3(velocity.x, 0, velocity.z);
+                return;
+            }
+
+            if (waterBreachConsumed && depthBelowSurface < waterBreachRearmDepth)
+            {
+                targetVelocity.y = -waterGravity * 0.5f;
+            }
+            else
+            {
+                targetVelocity.y = swimUpSpeed;
+            }
+        }
+        else if (sneakHeld)
+        {
+            targetVelocity.y = -swimDownSpeed;
         }
         else
         {
-            lookX = look.x * mouseSensitivity;
-            lookY = look.y * mouseSensitivity;
+            targetVelocity.y = -waterGravity * 0.5f;
         }
 
-        transform.Rotate(Vector3.up * lookX);
-        pitch -= lookY;
-        pitch = Mathf.Clamp(pitch, -89f, 89f);
+        float lerpRate = waterDrag * dt;
+        velocity.x = Mathf.Lerp(velocity.x, targetVelocity.x, lerpRate);
+        velocity.y = Mathf.Lerp(velocity.y, targetVelocity.y, lerpRate);
+        velocity.z = Mathf.Lerp(velocity.z, targetVelocity.z, lerpRate);
+
+        currentMoveVelocity = new Vector3(velocity.x, 0, velocity.z);
+    }
+
+    float FindWaterSurface()
+    {
+        int px = Mathf.FloorToInt(transform.position.x);
+        int pz = Mathf.FloorToInt(transform.position.z);
+        int startY = Mathf.FloorToInt(transform.position.y) + 3;
+
+        for (int y = startY; y >= startY - 10; y--)
+        {
+            ushort block = WorldManager.Instance.GetBlock(px, y, pz);
+            ushort blockAbove = WorldManager.Instance.GetBlock(px, y + 1, pz);
+
+            if (block == 6 && blockAbove != 6)
+                return y + 1f;
+        }
+
+        return transform.position.y;
     }
 
     void HandleMovement(float dt)
     {
-        isSprinting = Input.GetKey(KeyCode.LeftShift) && !isSneaking;
-        isSneaking = Input.GetKey(KeyCode.LeftControl);
+        Vector2 move = InputManager.Instance.Move;
+
+        isSneaking = InputManager.Instance.SneakHeld;
+
+        bool forwardNow = move.y > 0.5f;
+
+        if (forwardNow && !wasPressingForward)
+        {
+            float timeSinceLastTap = Time.time - lastForwardTapTime;
+            if (timeSinceLastTap <= doubleTapWindow)
+                doubleTapSprinting = true;
+            lastForwardTapTime = Time.time;
+        }
+
+        if (!forwardNow && doubleTapSprinting)
+            doubleTapSprinting = false;
+
+        wasPressingForward = forwardNow;
+
+        isSprinting = (InputManager.Instance.SprintHeld || doubleTapSprinting) && !isSneaking;
 
         float currentSpeed = walkSpeed;
         if (isSprinting) currentSpeed = sprintSpeed;
         if (isSneaking) currentSpeed = sneakSpeed;
 
-        Vector2 move = InputManager.Instance.Move;
         Vector3 forward = transform.forward;
         Vector3 right = transform.right;
         forward.y = 0; right.y = 0;
@@ -168,6 +334,35 @@ public class PlayerController : MonoBehaviour
         if (velocity.y < -40.0f) velocity.y = -40.0f;
     }
 
+    void OnEnterWater()
+    {
+        velocity.y *= 0.3f;
+
+        if (AudioManager.Instance != null)
+        {
+            AudioClip clip = SoundBanks.ItemDrop.GetRandom();
+            if (clip != null)
+                AudioManager.Instance.PlaySample3D(clip, transform.position, 0.7f, 0.7f, 1f, 30f, 0.8f);
+        }
+    }
+
+    void OnExitWater()
+    {
+        if (AudioManager.Instance != null)
+        {
+            AudioClip clip = SoundBanks.ItemPickup.GetRandom();
+            if (clip != null)
+                AudioManager.Instance.PlaySample3D(clip, transform.position, 0.5f, 1.2f, 1f, 20f, 0.8f);
+        }
+    }
+
+    void UpdateSwimBob(float dt)
+    {
+        bobTimer += dt * waterSurfaceBobSpeed;
+        float bobY = Mathf.Sin(bobTimer) * waterSurfaceBobAmount;
+        currentBobOffset = Vector3.Lerp(currentBobOffset, new Vector3(0, bobY, 0), bobLerpSpeed * dt);
+    }
+
     void UpdateCameraHeight(float dt)
     {
         float targetY = isSneaking ? sneakCameraY : normalCameraY;
@@ -182,8 +377,37 @@ public class PlayerController : MonoBehaviour
     {
         if (playerCamera == null) return;
 
-        float targetFOV = isSprinting && IsMoving() ? sprintFOV : normalFOV;
+        float targetFOV = normalFOV;
+        if (isSubmerged) targetFOV = waterFOV;
+        else if (isSprinting && IsMoving()) targetFOV = sprintFOV;
+
         playerCamera.fieldOfView = Mathf.Lerp(playerCamera.fieldOfView, targetFOV, fovLerpSpeed * dt);
+    }
+
+    void HandleLook(float dt)
+    {
+        Vector2 look = InputManager.Instance.Look;
+        bool usingGamepad = InputManager.Instance.IsGamepadActive;
+
+        float sens = usingGamepad
+            ? SettingsManager.Instance.settings.stickSensitivity
+            : SettingsManager.Instance.settings.mouseSensitivity;
+
+        float lookX, lookY;
+        if (usingGamepad)
+        {
+            lookX = look.x * sens * dt;
+            lookY = look.y * sens * dt;
+        }
+        else
+        {
+            lookX = look.x * sens;
+            lookY = look.y * sens;
+        }
+
+        transform.Rotate(Vector3.up * lookX);
+        pitch -= lookY;
+        pitch = Mathf.Clamp(pitch, -89f, 89f);
     }
 
     void UpdateHeadBob(float dt)
@@ -228,9 +452,7 @@ public class PlayerController : MonoBehaviour
         bool isGoingDown = Mathf.Cos(bobTimer) < 0f;
 
         if (wasCameraGoingDown && !isGoingDown && !justLanded)
-        {
             PlayFootstep();
-        }
 
         justLanded = false;
         wasCameraGoingDown = isGoingDown;
@@ -250,12 +472,8 @@ public class PlayerController : MonoBehaviour
         float stepVel = isSprinting ? 1.4f : (isSneaking ? 0.5f : 1.0f);
 
         AudioManager.Instance.PlayFootstepBlended(
-            action,
-            blocks.primary,
-            blocks.secondary,
-            blocks.blend,
-            transform.position,
-            stepVel);
+            action, blocks.primary, blocks.secondary, blocks.blend,
+            transform.position, stepVel);
     }
 
     void PlayJump()
@@ -323,23 +541,21 @@ public class PlayerController : MonoBehaviour
                 dz = fracZ < 0.5f ? -1 : 1;
         }
 
-        ushort neighborBlock = (dx != 0 || dz != 0) ? WorldManager.Instance.GetBlock(cx + dx, fy, cz + dz) : (ushort)0;
+        ushort neighborBlock = (dx != 0 || dz != 0)
+            ? WorldManager.Instance.GetBlock(cx + dx, fy, cz + dz)
+            : (ushort)0;
 
-        if (centerBlock != 0)
+        if (centerBlock != 0 && centerBlock != 6)
         {
             result.primary = centerBlock;
-            result.secondary = neighborBlock;
+            result.secondary = (neighborBlock != 6) ? neighborBlock : (ushort)0;
             result.blend = blendFactor;
         }
-        else if (neighborBlock != 0)
+        else if (neighborBlock != 0 && neighborBlock != 6)
         {
             result.primary = neighborBlock;
             result.secondary = 0;
             result.blend = 0f;
-        }
-        else
-        {
-            result.primary = 0;
         }
 
         return result;
