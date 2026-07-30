@@ -1,7 +1,6 @@
 using UnityEngine;
 using Unity.Mathematics;
 using System.Collections.Generic;
-using Random = UnityEngine.Random;
 
 public class DroppedItem : MonoBehaviour
 {
@@ -27,9 +26,9 @@ public class DroppedItem : MonoBehaviour
 
     void Start()
     {
-        bobTime = Random.Range(0f, Mathf.PI * 2);
+        bobTime = UnityEngine.Random.Range(0f, Mathf.PI * 2);
         SpawnVisual();
-        velocity = new Vector3(Random.Range(-1f, 1f), Random.Range(2f, 4f), Random.Range(-1f, 1f));
+        velocity = new Vector3(UnityEngine.Random.Range(-1f, 1f), UnityEngine.Random.Range(2f, 4f), UnityEngine.Random.Range(-1f, 1f));
         allDroppedItems.Add(this);
     }
 
@@ -40,24 +39,82 @@ public class DroppedItem : MonoBehaviour
 
     void SpawnVisual()
     {
-        ItemSO item = Inventory.Instance.itemDatabase.GetItem(blockId);
+        if (TrySpawnItemModel()) return;
+        if (TrySpawnBlockModel()) return;
+        SpawnFallbackCube();
+    }
 
-        if (item != null && item.heldModel != null)
+    bool TrySpawnItemModel()
+    {
+        ItemDatabase db = null;
+
+        if (Inventory.Instance != null && Inventory.Instance.itemDatabase != null)
+            db = Inventory.Instance.itemDatabase;
+
+        if (db == null) return false;
+
+        ItemSO item = db.GetItem(blockId);
+        if (item == null) return false;
+
+        GameObject model = item.groundModel != null ? item.groundModel : item.heldModel;
+        if (model == null) return false;
+
+        visualModel = Instantiate(model, transform);
+
+        visualModel.transform.localPosition = Vector3.zero;
+        visualModel.transform.localRotation = Quaternion.identity;
+        visualModel.transform.localScale = Vector3.one * 0.5f;
+
+        foreach (Transform t in visualModel.GetComponentsInChildren<Transform>())
         {
-            visualModel = Instantiate(item.heldModel, transform);
-            visualModel.transform.localPosition = Vector3.zero;
-            visualModel.transform.localScale = Vector3.one * 0.5f;
-            return;
+            if (t == visualModel.transform) continue;
+            t.localRotation = Quaternion.identity;
         }
+
+        return true;
+    }
+
+    bool TrySpawnBlockModel()
+    {
+        if (WorldManager.Instance == null) return false;
 
         BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(blockId);
-        if (block != null)
+        if (block == null) return false;
+
+        if (block.isCustomModel && block.customModelPrefab != null)
         {
-            visualModel = BlockPreviewFactory.CreateMiniBlock(block, WorldManager.Instance.blockDatabase.textureArray);
-            visualModel.transform.SetParent(transform);
+            visualModel = Instantiate(block.customModelPrefab, transform);
             visualModel.transform.localPosition = Vector3.zero;
-            visualModel.transform.localScale = Vector3.one * 0.3f;
+            visualModel.transform.localRotation = Quaternion.identity;
+            visualModel.transform.localScale = Vector3.one * 0.4f;
+            return true;
         }
+
+        Texture2DArray texArray = WorldManager.Instance.blockDatabase.textureArray;
+        if (texArray == null) return false;
+
+        visualModel = BlockPreviewFactory.CreateMiniBlock(block, texArray);
+        if (visualModel == null) return false;
+
+        visualModel.transform.SetParent(transform);
+        visualModel.transform.localPosition = Vector3.zero;
+        visualModel.transform.localRotation = Quaternion.identity;
+        visualModel.transform.localScale = Vector3.one * 0.3f;
+        return true;
+    }
+
+    void SpawnFallbackCube()
+    {
+        visualModel = GameObject.CreatePrimitive(PrimitiveType.Cube);
+        Destroy(visualModel.GetComponent<Collider>());
+        visualModel.transform.SetParent(transform);
+        visualModel.transform.localPosition = Vector3.zero;
+        visualModel.transform.localRotation = Quaternion.identity;
+        visualModel.transform.localScale = Vector3.one * 0.25f;
+
+        Renderer r = visualModel.GetComponent<Renderer>();
+        if (r != null)
+            r.material.color = new Color(0.5f, 0.5f, 0.5f);
     }
 
     void Update()
@@ -78,9 +135,10 @@ public class DroppedItem : MonoBehaviour
     {
         if (cachedPlayerTransform == null)
         {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null) cachedPlayerTransform = player.transform;
-            else return;
+            if (GameManager.Instance != null && GameManager.Instance.player != null)
+                cachedPlayerTransform = GameManager.Instance.player.transform;
+            else
+                return;
         }
 
         float dist = Vector3.Distance(transform.position, cachedPlayerTransform.position);
@@ -93,7 +151,7 @@ public class DroppedItem : MonoBehaviour
                 {
                     AudioClip clip = SoundBanks.ItemPickup.GetRandom();
                     if (clip != null)
-                        AudioManager.Instance.PlaySampleUI(clip, 0.6f, Random.Range(0.95f, 1.05f));
+                        AudioManager.Instance.PlaySampleUI(clip, 0.6f, UnityEngine.Random.Range(0.95f, 1.05f));
                 }
                 Destroy(gameObject);
             }
@@ -144,12 +202,13 @@ public class DroppedItem : MonoBehaviour
             bobTime += dt * 1.5f;
             float bobY = (Mathf.Sin(bobTime) + 1f) * 0.5f * 0.04f;
             visualModel.transform.localPosition = new Vector3(0, modelHalfHeight + currentLift + bobY, 0);
-            visualModel.transform.Rotate(Vector3.up * 40f * dt);
+
+            visualModel.transform.localRotation = Quaternion.Euler(0, bobTime * 40f, 0);
         }
         else
         {
             visualModel.transform.localPosition = new Vector3(0, modelHalfHeight + currentLift, 0);
-            visualModel.transform.Rotate(Vector3.up * 90f * dt);
+            visualModel.transform.Rotate(new Vector3(45f, 90f, 30f) * dt, Space.Self);
         }
     }
 

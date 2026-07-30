@@ -12,11 +12,16 @@ public class HotbarUI : MonoBehaviour
     private Image[] slotIcons;
     private Text[] countTexts;
 
+    private ushort[] previousIds;
+    private int[] previousCounts;
+
     void Start()
     {
         slotBackgrounds = new Image[9];
         slotIcons = new Image[9];
         countTexts = new Text[9];
+        previousIds = new ushort[9];
+        previousCounts = new int[9];
 
         for (int i = 0; i < 9; i++)
         {
@@ -25,9 +30,17 @@ public class HotbarUI : MonoBehaviour
 
             Transform iconTransform = slot.transform.Find("Icon");
             if (iconTransform != null)
+            {
                 slotIcons[i] = iconTransform.GetComponent<Image>();
+                slotIcons[i].sprite = null;
+                slotIcons[i].color = new Color(1, 1, 1, 0);
+            }
 
             countTexts[i] = slot.GetComponentInChildren<Text>();
+            countTexts[i].text = "";
+
+            previousIds[i] = 0;
+            previousCounts[i] = 0;
         }
     }
 
@@ -39,35 +52,47 @@ public class HotbarUI : MonoBehaviour
         {
             slotBackgrounds[i].color = (i == Inventory.Instance.selectedSlot) ? selectedColor : normalColor;
 
-            ItemStack stack = Inventory.Instance.slots[i];
+            ItemStack current = Inventory.Instance.slots[i];
+            ushort currentId = current.id;
+            int currentCount = current.count;
 
-            if (stack.IsEmpty)
+            // Обновляем только если что-то изменилось
+            if (currentId != previousIds[i] || currentCount != previousCounts[i])
             {
-                countTexts[i].text = "";
-                if (slotIcons[i] != null)
+                if (current.IsEmpty)
                 {
-                    slotIcons[i].sprite = null;
-                    slotIcons[i].color = new Color(1, 1, 1, 0);
-                }
-            }
-            else
-            {
-                countTexts[i].text = stack.count.ToString();
-
-                if (slotIcons[i] != null && BlockIconGenerator.Instance != null)
-                {
-                    Sprite icon = BlockIconGenerator.Instance.GetIcon(stack.id);
-                    if (icon != null)
-                    {
-                        slotIcons[i].sprite = icon;
-                        slotIcons[i].color = Color.white;
-                    }
-                    else
+                    if (slotIcons[i] != null)
                     {
                         slotIcons[i].sprite = null;
                         slotIcons[i].color = new Color(1, 1, 1, 0);
                     }
+                    countTexts[i].text = "";
                 }
+                else
+                {
+                    Sprite icon = BlockIconGenerator.Instance != null
+                        ? BlockIconGenerator.Instance.GetIcon(currentId)
+                        : null;
+
+                    if (slotIcons[i] != null)
+                    {
+                        if (icon != null)
+                        {
+                            slotIcons[i].sprite = icon;
+                            slotIcons[i].color = Color.white;
+                        }
+                        else
+                        {
+                            slotIcons[i].sprite = null;
+                            slotIcons[i].color = new Color(1, 1, 1, 0);
+                        }
+                    }
+
+                    countTexts[i].text = (currentCount > 1) ? currentCount.ToString() : "";
+                }
+
+                previousIds[i] = currentId;
+                previousCounts[i] = currentCount;
             }
         }
     }

@@ -43,19 +43,19 @@ public class WaterMeshBuilder : MonoBehaviour
                 ushort blockAtSea = WorldManager.Instance.GetBlock(wx, seaLevel, wz);
                 ushort blockAboveSea = WorldManager.Instance.GetBlock(wx, seaLevel + 1, wz);
 
-                if (blockAtSea == 6 && blockAboveSea == 0)
+                if (blockAtSea == BlockIDs.Water && blockAboveSea == BlockIDs.Air)
                 {
                     AddTopFace(vertices, triangles, normals, x, seaLevel, z);
                 }
-                else if (blockAtSea == 0)
+                else if (blockAtSea == BlockIDs.Air)
                 {
                     for (int y = seaLevel; y >= seaLevel - 3; y--)
                     {
                         ushort below = WorldManager.Instance.GetBlock(wx, y, wz);
-                        if (below == 6)
+                        if (below == BlockIDs.Water)
                         {
                             ushort above = WorldManager.Instance.GetBlock(wx, y + 1, wz);
-                            if (above == 0)
+                            if (above == BlockIDs.Air)
                             {
                                 AddTopFace(vertices, triangles, normals, x, y, z);
                                 break;

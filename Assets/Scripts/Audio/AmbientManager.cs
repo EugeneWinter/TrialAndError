@@ -1,11 +1,9 @@
 using UnityEngine;
-using System.Collections.Generic;
 
-public class AmbientManager : MonoBehaviour
+public class AmbientManager : MonoBehaviour, IGameSystem
 {
     public static AmbientManager Instance;
 
-    [Header("Volume Settings")]
     [Range(0f, 1f)] public float masterAmbientVolume = 0.15f;
     [Range(0f, 1f)] public float windDayVolume = 0.35f;
     [Range(0f, 1f)] public float windNightVolume = 0.5f;
@@ -14,20 +12,17 @@ public class AmbientManager : MonoBehaviour
     [Range(0f, 1f)] public float nightVolume = 0.45f;
     [Range(0f, 1f)] public float caveVolume = 0.6f;
 
-    [Header("Cave Detection")]
     public bool useBlocksAboveDetection = true;
     public int blocksAboveThreshold = 5;
     public int caveCheckHeight = 20;
     public float caveDepthThreshold = -10f;
 
-    [Header("Time Thresholds")]
     public float dayStartHour = 6f;
     public float dayEndHour = 20f;
     public float birdsMorningStart = 5f;
     public float birdsMorningEnd = 11f;
     public float birdsDayEnd = 18f;
 
-    [Header("Fade Speed")]
     public float fadeSpeed = 0.3f;
 
     private class AmbientLoop
@@ -51,7 +46,7 @@ public class AmbientManager : MonoBehaviour
         Instance = this;
     }
 
-    void Start()
+    public void InitializeSystem()
     {
         windLoop = CreateLoop(SoundBanks.AmbientWind, "Wind");
         birdsLoop = CreateLoop(SoundBanks.AmbientBirds, "Birds");
@@ -112,13 +107,12 @@ public class AmbientManager : MonoBehaviour
 
     bool IsCaveBlock(ushort blockId)
     {
-        return blockId switch
-        {
-            1 => true,
-            2 => true,
-            3 => true,
-            _ => false
-        };
+        if (blockId == BlockIDs.Air || blockId == BlockIDs.Water) return false;
+
+        BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(blockId);
+        if (block == null) return false;
+
+        return block.category == BlockCategory.Stone || block.category == BlockCategory.Ore;
     }
 
     void UpdateTargetVolumes()
@@ -163,7 +157,6 @@ public class AmbientManager : MonoBehaviour
     {
         if (bank == null || bank.IsEmpty)
         {
-            Debug.LogWarning($"AmbientLoop {name}: no clips found");
             return new AmbientLoop { debugName = name };
         }
 

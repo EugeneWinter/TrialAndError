@@ -23,12 +23,14 @@ MonoBehaviour:
   requiredTier: 0
   isSolid: 1
   isTransparent: 0
-  texTop: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
-  texBottom: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
-  texNorth: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
-  texSouth: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
-  texEast: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
-  texWest: {fileID: 2800000, guid: a81a30792db723a4b97fe6ab9bef030d, type: 3}
+  isCustomModel: 0
+  customModelPrefab: {fileID: 0}
+  texTop: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
+  texBottom: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
+  texNorth: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
+  texSouth: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
+  texEast: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
+  texWest: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
   indexTop: 7
   indexBottom: 7
   indexNorth: 7

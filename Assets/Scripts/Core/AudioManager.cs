@@ -1,11 +1,10 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-public class AudioManager : MonoBehaviour
+public class AudioManager : MonoBehaviour, IGameSystem
 {
     public static AudioManager Instance;
 
-    [Header("Footstep Sample Settings")]
     [Range(0f, 0.3f)] public float footstepPitchVar = 0.15f;
     [Range(0f, 0.3f)] public float footstepVolumeVar = 0.15f;
     [Range(0f, 1f)] public float footstepBaseVolume = 0.7f;
@@ -13,33 +12,23 @@ public class AudioManager : MonoBehaviour
     [Range(0f, 0.3f)] public float sneakPitchVarBoost = 0.05f;
     public bool processFootstepSamples = true;
 
-    [Header("Block Break")]
     [Range(0.3f, 1.0f)] public float blockBreakPitchMin = 0.65f;
     [Range(0.3f, 1.0f)] public float blockBreakPitchMax = 0.85f;
     [Range(0f, 1f)] public float blockBreakVolume = 0.85f;
 
-    [Header("Dig Hit")]
     [Range(0.5f, 1.2f)] public float digPitchMin = 0.75f;
     [Range(0.5f, 1.2f)] public float digPitchMax = 0.95f;
     [Range(0f, 1f)] public float digVolume = 0.55f;
 
-    [Header("Pool")]
     public int poolSize = 32;
 
     private readonly List<AudioSource> pool = new List<AudioSource>();
     private int poolIndex = 0;
     private AudioSource uiSource;
-
     private FootstepBank footstepBank;
 
     void Awake()
     {
-        if (Instance != null && Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
         Instance = this;
 
         for (int i = 0; i < poolSize; i++)
@@ -62,9 +51,11 @@ public class AudioManager : MonoBehaviour
         uiSource.playOnAwake = false;
         uiSource.spatialBlend = 0f;
         uiSource.dopplerLevel = 0f;
+    }
 
+    public void InitializeSystem()
+    {
         footstepBank = new FootstepBank(processFootstepSamples);
-        footstepBank.LogSummary();
     }
 
     public void PlaySample3D(AudioClip clip, Vector3 position, float volume, float pitch = 1f, float minDist = 1f, float maxDist = 20f, float spatialBlend = 1f)
@@ -104,19 +95,16 @@ public class AudioManager : MonoBehaviour
         if (primaryClip == null) return;
 
         float pitchVar = footstepPitchVar;
-        if (action == FootstepAction.Sneak)
-            pitchVar += sneakPitchVarBoost;
+        if (action == FootstepAction.Sneak) pitchVar += sneakPitchVarBoost;
 
         float pitch = 1f + Random.Range(-pitchVar, pitchVar);
         float volMul = 1f + Random.Range(-footstepVolumeVar, footstepVolumeVar);
         float vel = Mathf.Clamp(velocity, 0.4f, 1.6f);
 
         float baseVol = footstepBaseVolume;
-        if (action == FootstepAction.Sneak)
-            baseVol *= sneakVolumeScale;
+        if (action == FootstepAction.Sneak) baseVol *= sneakVolumeScale;
 
         float volume = baseVol * volMul * Mathf.Lerp(0.7f, 1.1f, vel / 1.6f);
-
         Vector3 footPos = position + Vector3.down * 0.8f;
 
         float primaryVolume = volume * (1f - blendFactor * 0.5f);
@@ -157,7 +145,6 @@ public class AudioManager : MonoBehaviour
         if (footstepBank == null) return;
 
         FootstepMaterial mat = GetFootstepMaterialForBlock(blockId);
-
         AudioClip mainClip = footstepBank.GetRandom(FootstepAction.Run, mat);
         if (mainClip == null) return;
 
@@ -222,14 +209,14 @@ public class AudioManager : MonoBehaviour
     {
         return id switch
         {
-            1 => FootstepMaterial.Stone,
-            2 => FootstepMaterial.Grass,
-            3 => FootstepMaterial.Dirt,
-            4 => FootstepMaterial.Wood,
-            5 => FootstepMaterial.Dirt,
-            6 => FootstepMaterial.Stone,
-            7 => FootstepMaterial.Dirt,
-            8 => FootstepMaterial.Dirt,
+            BlockIDs.Stone => FootstepMaterial.Stone,
+            BlockIDs.Grass => FootstepMaterial.Grass,
+            BlockIDs.Dirt => FootstepMaterial.Dirt,
+            BlockIDs.Log => FootstepMaterial.Wood,
+            BlockIDs.Leaf => FootstepMaterial.Dirt,
+            BlockIDs.Water => FootstepMaterial.Stone,
+            BlockIDs.Sand => FootstepMaterial.Dirt,
+            BlockIDs.Deepstone => FootstepMaterial.Stone,
             _ => FootstepMaterial.Dirt
         };
     }
@@ -239,11 +226,5 @@ public class AudioManager : MonoBehaviour
         AudioSource src = pool[poolIndex];
         poolIndex = (poolIndex + 1) % pool.Count;
         return src;
-    }
-
-    void OnDestroy()
-    {
-        if (Instance == this)
-            Instance = null;
     }
 }

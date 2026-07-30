@@ -1,14 +1,17 @@
 using UnityEngine;
 
-public class SettingsManager : MonoBehaviour
+public class SettingsManager : MonoBehaviour, IGameSystem
 {
     public static SettingsManager Instance;
-
     public GameSettings settings;
 
     void Awake()
     {
         Instance = this;
+    }
+
+    public void InitializeSystem()
+    {
         Load();
     }
 

@@ -43,6 +43,8 @@ public struct ChunkMeshJob : IJob
 
                     var v = visualData[block];
 
+                    if (v.isCustomModel) continue;
+
                     if (ShouldDrawFace(block, GetBlock(x, y + 1, z)))
                         AddFaceTop(x, y, z, v.top);
                     if (ShouldDrawFace(block, GetBlock(x, y - 1, z)))
@@ -56,6 +58,65 @@ public struct ChunkMeshJob : IJob
                     if (ShouldDrawFace(block, GetBlock(x + 1, y, z)))
                         AddFaceEast(x, y, z, v.east);
                 }
+    }
+
+    void AddMicroBlock(int x, int y, int z, BlockDatabase.BlockVisualData v)
+    {
+        float3 min = new float3(x + 0.35f, y + 0.0f, z + 0.35f);
+        float3 max = new float3(x + 0.65f, y + 0.15f, z + 0.65f);
+
+        float light = GetLightFloat(x, y, z);
+
+        AddQuadMicro(
+            new float3(min.x, max.y, min.z), new float3(min.x, max.y, max.z),
+            new float3(max.x, max.y, max.z), new float3(max.x, max.y, min.z),
+            new float3(0, 1, 0), v.top, light);
+
+        AddQuadMicro(
+            new float3(min.x, min.y, max.z), new float3(min.x, min.y, min.z),
+            new float3(max.x, min.y, min.z), new float3(max.x, min.y, max.z),
+            new float3(0, -1, 0), v.bottom, light);
+
+        AddQuadMicro(
+            new float3(min.x, min.y, min.z), new float3(min.x, max.y, min.z),
+            new float3(max.x, max.y, min.z), new float3(max.x, min.y, min.z),
+            new float3(0, 0, -1), v.north, light);
+
+        AddQuadMicro(
+            new float3(max.x, min.y, max.z), new float3(max.x, max.y, max.z),
+            new float3(min.x, max.y, max.z), new float3(min.x, min.y, max.z),
+            new float3(0, 0, 1), v.south, light);
+
+        AddQuadMicro(
+            new float3(min.x, min.y, max.z), new float3(min.x, max.y, max.z),
+            new float3(min.x, max.y, min.z), new float3(min.x, min.y, min.z),
+            new float3(-1, 0, 0), v.west, light);
+
+        AddQuadMicro(
+            new float3(max.x, min.y, min.z), new float3(max.x, max.y, min.z),
+            new float3(max.x, max.y, max.z), new float3(max.x, min.y, max.z),
+            new float3(1, 0, 0), v.east, light);
+    }
+
+    void AddQuadMicro(float3 v1, float3 v2, float3 v3, float3 v4, float3 normal, int texLayer, float light)
+    {
+        int vc = vertices.Length;
+        vertices.Add(v1); vertices.Add(v2); vertices.Add(v3); vertices.Add(v4);
+
+        triangles.Add(vc); triangles.Add(vc + 1); triangles.Add(vc + 2);
+        triangles.Add(vc); triangles.Add(vc + 2); triangles.Add(vc + 3);
+
+        uvs.Add(new float3(0, 0, texLayer));
+        uvs.Add(new float3(0, 1, texLayer));
+        uvs.Add(new float3(1, 1, texLayer));
+        uvs.Add(new float3(1, 0, texLayer));
+
+        normals.Add(normal); normals.Add(normal); normals.Add(normal); normals.Add(normal);
+
+        vertexColors.Add(new float4(light, light, light, 1f));
+        vertexColors.Add(new float4(light, light, light, 1f));
+        vertexColors.Add(new float4(light, light, light, 1f));
+        vertexColors.Add(new float4(light, light, light, 1f));
     }
 
     void AddFaceTop(int x, int y, int z, int texLayer)
@@ -253,6 +314,7 @@ public struct ChunkMeshJob : IJob
         if (b == 0) return false;
         if (b >= visualData.Length) return false;
         if (visualData[b].isTransparent) return false;
+        if (visualData[b].isCustomModel) return false;
         return true;
     }
 
@@ -387,6 +449,8 @@ public struct ChunkMeshJob : IJob
         if (neighbor == 0) return true;
         if (neighbor == 6) return true;
         if (neighbor >= visualData.Length) return true;
+
+        if (visualData[neighbor].isCustomModel) return true;
 
         bool currentTransparent = IsTransparent(current);
         bool neighborTransparent = IsTransparent(neighbor);

@@ -164,9 +164,9 @@ public static class LightEngine
 
     static bool IsOpaque(ushort blockId)
     {
-        if (blockId == 0) return false;
-        if (blockId == 6) return false;
-        if (blockId == 5) return false;
+        if (blockId == BlockIDs.Air) return false;
+        if (blockId == BlockIDs.Water) return false;
+        if (blockId == BlockIDs.Leaf) return false;
         return true;
     }
 }

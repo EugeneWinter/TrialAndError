@@ -2,12 +2,15 @@ using Unity.Collections;
 using Unity.Jobs;
 using Unity.Mathematics;
 using UnityEngine;
+using System.Collections.Generic;
 
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class ChunkRenderer : MonoBehaviour
 {
     private Mesh mesh;
     private ChunkData data;
+    private Transform modelsRoot;
+    private List<GameObject> spawnedModels = new List<GameObject>();
 
     public void Initialize(ChunkData chunkData)
     {
@@ -15,6 +18,11 @@ public class ChunkRenderer : MonoBehaviour
         mesh = new Mesh();
         mesh.indexFormat = UnityEngine.Rendering.IndexFormat.UInt32;
         GetComponent<MeshFilter>().mesh = mesh;
+
+        modelsRoot = new GameObject("ModelsRoot").transform;
+        modelsRoot.SetParent(transform);
+        modelsRoot.localPosition = Vector3.zero;
+
         RenderMesh();
     }
 
@@ -94,12 +102,46 @@ public class ChunkRenderer : MonoBehaviour
         norms.Dispose();
         colors.Dispose();
         nativeLightMap.Dispose();
+        sliceXN.Dispose(); sliceXP.Dispose(); sliceYN.Dispose(); sliceYP.Dispose(); sliceZN.Dispose(); sliceZP.Dispose();
 
-        sliceXN.Dispose();
-        sliceXP.Dispose();
-        sliceYN.Dispose();
-        sliceYP.Dispose();
-        sliceZN.Dispose();
-        sliceZP.Dispose();
+        SpawnCustomModels(world);
+    }
+
+    void SpawnCustomModels(WorldManager world)
+    {
+        // Удаляем старые модели
+        foreach (var model in spawnedModels) Destroy(model);
+        spawnedModels.Clear();
+
+        var visualData = world.blockDatabase.GetVisualData();
+
+        for (int x = 0; x < 32; x++)
+        {
+            for (int y = 0; y < 32; y++)
+            {
+                for (int z = 0; z < 32; z++)
+                {
+                    ushort blockId = data.GetBlock(x, y, z);
+                    if (blockId == 0 || blockId >= visualData.Length) continue;
+
+                    if (visualData[blockId].isCustomModel)
+                    {
+                        BlockSO blockSO = world.blockDatabase.GetBlockSO(blockId);
+                        if (blockSO != null && blockSO.customModelPrefab != null)
+                        {
+                            GameObject obj = Instantiate(blockSO.customModelPrefab, modelsRoot);
+                            obj.transform.localPosition = new Vector3(x + 0.5f, y, z + 0.5f);
+
+                            System.Random rng = new System.Random(data.position.x * 73856 + x * 19349 + z * 83492);
+                            obj.transform.localRotation = Quaternion.Euler(0, rng.Next(0, 360), 0);
+
+                            obj.transform.localScale = Vector3.one * 0.4f;
+
+                            spawnedModels.Add(obj);
+                        }
+                    }
+                }
+            }
+        }
     }
 }

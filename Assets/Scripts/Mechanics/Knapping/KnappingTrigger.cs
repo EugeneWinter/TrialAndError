@@ -17,8 +17,7 @@ public class KnappingTrigger : MonoBehaviour
 
             if (selected == requiredItemId && count >= requiredCount)
             {
-                int seed = Random.Range(1, int.MaxValue);
-                KnappingSession.Instance.StartSession(seed);
+                KnappingSession.Instance.StartSession();
             }
         }
     }

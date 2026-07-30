@@ -7,13 +7,12 @@ public class WorldItem : MonoBehaviour
     public float bobSpeed = 1.5f;
     public float bobHeight = 0.04f;
     public float rotateSpeed = 30f;
+    public float pickupRadius = 2.0f;
 
     private float bobTime;
     private Vector3 basePosition;
     private bool initialized = false;
     private Transform cachedPlayer;
-
-    private const float INTERACT_DISTANCE = 2.5f;
 
     public void Setup(ushort id, int amount, Vector3 position)
     {
@@ -38,26 +37,28 @@ public class WorldItem : MonoBehaviour
 
         if (cachedPlayer == null)
         {
-            GameObject player = GameObject.FindWithTag("Player");
-            if (player != null) cachedPlayer = player.transform;
-            else return;
+            if (GameManager.Instance.player != null)
+                cachedPlayer = GameManager.Instance.player.transform;
+            else
+                return;
         }
 
         float dist = Vector3.Distance(transform.position, cachedPlayer.position);
-        if (dist > INTERACT_DISTANCE) return;
+        if (dist > pickupRadius) return;
 
-        if (InputManager.Instance.InteractPressed)
+        if (Inventory.Instance.AddItem(itemId, count))
         {
-            if (Inventory.Instance.AddItem(itemId, count))
-            {
-                if (AudioManager.Instance != null)
-                {
-                    AudioClip clip = SoundBanks.ItemPickup.GetRandom();
-                    if (clip != null)
-                        AudioManager.Instance.PlaySampleUI(clip, 0.6f, Random.Range(0.95f, 1.05f));
-                }
-                Destroy(gameObject);
-            }
+            PlayPickupSound();
+            Destroy(gameObject);
         }
+    }
+
+    void PlayPickupSound()
+    {
+        if (AudioManager.Instance == null) return;
+
+        AudioClip clip = SoundBanks.ItemPickup.GetRandom();
+        if (clip != null)
+            AudioManager.Instance.PlaySampleUI(clip, 0.6f, Random.Range(0.95f, 1.05f));
     }
 }

@@ -73,8 +73,8 @@ public class BlockBreakingSystem : MonoBehaviour
     private bool CanBreak(BlockSO block, ItemSO tool)
     {
         if (block.requiredTool == ToolType.None) return true;
-        if (tool == null) return block.requiredTier == 0;
-        if (tool.toolType != block.requiredTool) return block.requiredTier == 0;
+        if (tool == null) return false;
+        if (tool.toolType != block.requiredTool) return false;
         return tool.toolTier >= block.requiredTier;
     }
 

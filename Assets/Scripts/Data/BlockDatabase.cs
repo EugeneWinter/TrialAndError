@@ -18,6 +18,7 @@ public class BlockDatabase : ScriptableObject
         public int west;
         public bool isTransparent;
         public bool isSolid;
+        public bool isCustomModel; // <-- днаюбкемн
     }
 
     private NativeArray<BlockVisualData> _visualData;
@@ -41,13 +42,14 @@ public class BlockDatabase : ScriptableObject
         if (_visualData.IsCreated) _visualData.Dispose();
 
         int maxId = 0;
-        foreach (var b in blocks) if (b.id > maxId) maxId = b.id;
+        foreach (var b in blocks) if (b != null && b.id > maxId) maxId = b.id;
 
         _visualData = new NativeArray<BlockVisualData>(maxId + 1, Allocator.Persistent);
         _lookup = new Dictionary<ushort, BlockSO>();
 
         foreach (var b in blocks)
         {
+            if (b == null) continue;
             _visualData[b.id] = new BlockVisualData
             {
                 top = b.indexTop,
@@ -57,7 +59,8 @@ public class BlockDatabase : ScriptableObject
                 east = b.indexEast,
                 west = b.indexWest,
                 isTransparent = b.isTransparent,
-                isSolid = b.isSolid
+                isSolid = b.isSolid,
+                isCustomModel = b.isCustomModel
             };
             _lookup[b.id] = b;
         }
@@ -66,10 +69,7 @@ public class BlockDatabase : ScriptableObject
 
     public void Dispose()
     {
-        if (_visualData.IsCreated)
-        {
-            _visualData.Dispose();
-        }
+        if (_visualData.IsCreated) _visualData.Dispose();
         _isInitialized = false;
         _lookup = null;
     }

@@ -21,6 +21,8 @@ public class UnderwaterAudioFilter : MonoBehaviour
     private float targetVolume;
     private float targetAmbienceVolume;
 
+    private bool firstFrame = true;
+
     void Awake()
     {
         Instance = this;
@@ -62,7 +64,7 @@ public class UnderwaterAudioFilter : MonoBehaviour
 
         bool shouldBeUnderwater = player.IsSubmerged;
 
-        if (shouldBeUnderwater != isUnderwater)
+        if (shouldBeUnderwater != isUnderwater || firstFrame)
         {
             isUnderwater = shouldBeUnderwater;
 
@@ -80,18 +82,34 @@ public class UnderwaterAudioFilter : MonoBehaviour
             }
         }
 
-        float speed = transitionSpeed * Time.deltaTime;
-
-        if (lowPassFilter != null)
+        if (firstFrame)
         {
-            lowPassFilter.cutoffFrequency = Mathf.Lerp(lowPassFilter.cutoffFrequency, targetFreq, speed);
-            lowPassFilter.lowpassResonanceQ = isUnderwater ? 1.4f : 1f;
+            if (lowPassFilter != null)
+            {
+                lowPassFilter.cutoffFrequency = targetFreq;
+                lowPassFilter.lowpassResonanceQ = isUnderwater ? 1.4f : 1f;
+            }
+            AudioListener.volume = targetVolume;
+            if (underwaterAmbienceSource != null)
+                underwaterAmbienceSource.volume = targetAmbienceVolume;
+
+            firstFrame = false;
         }
+        else
+        {
+            float speed = transitionSpeed * Time.deltaTime;
 
-        AudioListener.volume = Mathf.Lerp(AudioListener.volume, targetVolume, speed);
+            if (lowPassFilter != null)
+            {
+                lowPassFilter.cutoffFrequency = Mathf.Lerp(lowPassFilter.cutoffFrequency, targetFreq, speed);
+                lowPassFilter.lowpassResonanceQ = isUnderwater ? 1.4f : 1f;
+            }
 
-        if (underwaterAmbienceSource != null)
-            underwaterAmbienceSource.volume = Mathf.Lerp(underwaterAmbienceSource.volume, targetAmbienceVolume, speed);
+            AudioListener.volume = Mathf.Lerp(AudioListener.volume, targetVolume, speed);
+
+            if (underwaterAmbienceSource != null)
+                underwaterAmbienceSource.volume = Mathf.Lerp(underwaterAmbienceSource.volume, targetAmbienceVolume, speed);
+        }
     }
 
     AudioClip CreateUnderwaterDrone()

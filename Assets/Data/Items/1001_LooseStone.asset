@@ -10,17 +10,25 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 87cbb2958752e3d489691e02d95fa5b1, type: 3}
-  m_Name: 1001_StoneCobble
+  m_Name: 1001_LooseStone
   m_EditorClassIdentifier: 
   id: 1001
-  itemName: Stone Cobble
-  icon: {fileID: 0}
+  itemName: Loose Stone
   maxStack: 16
   itemType: 0
-  heldModel: {fileID: 0}
-  heldPosition: {x: 0.3, y: -0.3, z: 0.5}
-  heldRotation: {x: 0, y: 0, z: 0}
+  heldModel: {fileID: 5665443006074418144, guid: 6e6ea4f7bb4451a468389293c50c8d4b,
+    type: 3}
+  heldPosition: {x: 0.2, y: -0.55, z: 0.3}
+  heldRotation: {x: 10, y: -8, z: -4}
   heldScale: {x: 1, y: 1, z: 1}
+  groundModel: {fileID: 5665443006074418144, guid: 6e6ea4f7bb4451a468389293c50c8d4b,
+    type: 3}
+  groundScale: {x: 0.5, y: 0.5, z: 0.5}
+  groundRotationOffset: {x: 0, y: 0, z: 0}
+  groundSink: 0.01
+  iconPosition: {x: -0.06, y: 0.03, z: 0}
+  iconRotation: {x: 30, y: 45, z: 0}
+  iconScale: 2.2
   toolType: 0
   toolTier: 0
   miningSpeedMultiplier: 1

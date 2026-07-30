@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public WorldManager worldManager;
     public GameObject player;
     public GameObject pauseMenuUI;
+    public Camera startupCamera;
 
     void Awake()
     {
@@ -70,7 +71,22 @@ public class GameManager : MonoBehaviour
     {
         state = GameState.Loading;
 
+        while (Bootstrap.Instance == null || !Bootstrap.Instance.AllSystemsReady)
+            yield return null;
+
+        if (LoadingScreenUI.Instance != null)
+            LoadingScreenUI.Instance.SetStatus("Generating terrain...", 0.1f);
+
+        yield return null;
+
         worldManager.GenerateWorld();
+
+        while (!worldManager.IsWorldReady)
+            yield return null;
+
+        if (LoadingScreenUI.Instance != null)
+            LoadingScreenUI.Instance.SetStatus("Spawning player...", 0.98f);
+
         yield return null;
 
         int spawnX = 0;
@@ -80,8 +96,19 @@ public class GameManager : MonoBehaviour
         player.transform.position = new Vector3(spawnX + 0.5f, spawnY, spawnZ + 0.5f);
         player.SetActive(true);
 
+        if (startupCamera != null)
+            startupCamera.gameObject.SetActive(false);
+
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
+
+        if (LoadingScreenUI.Instance != null)
+            LoadingScreenUI.Instance.SetStatus("Ready!", 1f);
+
+        yield return new WaitForSecondsRealtime(0.3f);
+
+        if (LoadingScreenUI.Instance != null)
+            LoadingScreenUI.Instance.Hide();
 
         state = GameState.Playing;
     }
@@ -93,7 +120,7 @@ public class GameManager : MonoBehaviour
         for (int y = 250; y >= 0; y--)
         {
             ushort block = worldManager.GetBlock(x, y, z);
-            if (block != 0 && block != 6)
+            if (block != BlockIDs.Air && block != BlockIDs.Water)
             {
                 if (y >= seaLevel)
                     return y;
@@ -103,6 +130,7 @@ public class GameManager : MonoBehaviour
         for (int searchRadius = 1; searchRadius < 100; searchRadius++)
         {
             for (int dx = -searchRadius; dx <= searchRadius; dx++)
+            {
                 for (int dz = -searchRadius; dz <= searchRadius; dz++)
                 {
                     if (Mathf.Abs(dx) != searchRadius && Mathf.Abs(dz) != searchRadius) continue;
@@ -110,14 +138,11 @@ public class GameManager : MonoBehaviour
                     for (int y = 250; y >= seaLevel; y--)
                     {
                         ushort block = worldManager.GetBlock(x + dx, y, z + dz);
-                        if (block != 0 && block != 6)
+                        if (block != BlockIDs.Air && block != BlockIDs.Water)
                             return y;
                     }
                 }
-
-            x += searchRadius;
-            z += searchRadius;
-            break;
+            }
         }
 
         return seaLevel + 5;

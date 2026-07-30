@@ -1,13 +1,9 @@
 using UnityEngine;
+using Unity.Mathematics;
 
 public class WorldItemSpawner : MonoBehaviour
 {
     public static WorldItemSpawner Instance;
-
-    [Header("Prefabs")]
-    public GameObject looseStoneModel;
-    public GameObject looseStickModel;
-    public GameObject looseFiberModel;
 
     [Header("Item IDs")]
     public ushort stoneItemId = 1001;
@@ -15,9 +11,9 @@ public class WorldItemSpawner : MonoBehaviour
     public ushort fiberItemId = 1004;
 
     [Header("Spawn Settings")]
-    public float stoneChance = 3f;
-    public float stickChance = 2f;
-    public float fiberChance = 1.5f;
+    public float stoneChance = 8f;
+    public float stickChance = 5f;
+    public float fiberChance = 4f;
 
     void Awake()
     {
@@ -38,25 +34,26 @@ public class WorldItemSpawner : MonoBehaviour
                 if (height <= 0) continue;
 
                 ushort surfaceBlock = WorldManager.Instance.GetBlock(worldX, height - 1, worldZ);
-                if (surfaceBlock == 0) continue;
+                if (surfaceBlock == BlockIDs.Air || surfaceBlock == BlockIDs.Water) continue;
 
                 float roll = (float)rng.NextDouble() * 100f;
+                int3 surfacePos = new int3(worldX, height, worldZ);
 
                 if (roll < stoneChance)
                 {
-                    SpawnWorldItem(worldX, height, worldZ, stoneItemId, looseStoneModel);
+                    int amount = rng.Next(1, 4);
+                    for (int i = 0; i < amount; i++)
+                        GroundItemManager.Instance.TryPlaceItem(surfacePos, stoneItemId);
                 }
                 else if (roll < stoneChance + stickChance)
                 {
-                    bool nearTree = CheckNearTree(worldX, height, worldZ);
-                    if (nearTree)
-                        SpawnWorldItem(worldX, height, worldZ, stickItemId, looseStickModel);
+                    if (CheckNearTree(worldX, height, worldZ))
+                        GroundItemManager.Instance.TryPlaceItem(surfacePos, stickItemId);
                 }
                 else if (roll < stoneChance + stickChance + fiberChance)
                 {
-                    ushort grassBlock = WorldManager.Instance.GetBlock(worldX, height - 1, worldZ);
-                    if (grassBlock == 2)
-                        SpawnWorldItem(worldX, height, worldZ, fiberItemId, looseFiberModel);
+                    if (surfaceBlock == BlockIDs.Grass)
+                        GroundItemManager.Instance.TryPlaceItem(surfacePos, fiberItemId);
                 }
             }
     }
@@ -68,32 +65,14 @@ public class WorldItemSpawner : MonoBehaviour
                 for (int dy = 0; dy < 6; dy++)
                 {
                     ushort block = WorldManager.Instance.GetBlock(wx + dx, wy + dy, wz + dz);
-                    if (block == 4) return true;
+                    if (block == BlockIDs.Log) return true;
                 }
         return false;
     }
 
-    void SpawnWorldItem(int wx, int wy, int wz, ushort itemId, GameObject model)
-    {
-        Vector3 pos = new Vector3(wx + 0.5f, wy, wz + 0.5f);
-
-        GameObject obj = new GameObject($"WorldItem_{itemId}");
-        obj.transform.position = pos;
-
-        if (model != null)
-        {
-            GameObject visual = Instantiate(model, obj.transform);
-            visual.transform.localPosition = Vector3.zero;
-            visual.transform.localScale = Vector3.one * 0.4f;
-        }
-
-        WorldItem wi = obj.AddComponent<WorldItem>();
-        wi.Setup(itemId, 1, pos);
-    }
-
     int FindSurface(int x, int z)
     {
-        for (int y = 60; y >= 0; y--)
+        for (int y = WorldManager.Instance.worldHeightInChunks * 32 - 1; y >= 0; y--)
         {
             if (WorldManager.Instance.IsBlockSolid(x, y, z))
                 return y + 1;

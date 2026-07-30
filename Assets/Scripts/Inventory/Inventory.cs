@@ -50,6 +50,30 @@ public class Inventory : MonoBehaviour
         }
     }
 
+    public int GetMaxStack(ushort id)
+    {
+        ItemSO item = itemDatabase.GetItem(id);
+        if (item != null) return item.maxStack;
+
+        if (WorldManager.Instance != null)
+        {
+            BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(id);
+            if (block != null) return 64;
+        }
+
+        return 64;
+    }
+
+    public bool IsValidItem(ushort id)
+    {
+        if (itemDatabase.GetItem(id) != null) return true;
+
+        if (WorldManager.Instance != null && WorldManager.Instance.blockDatabase.GetBlockSO(id) != null)
+            return true;
+
+        return false;
+    }
+
     public ushort GetSelectedBlockID()
     {
         ushort id = slots[selectedSlot].id;
@@ -72,34 +96,53 @@ public class Inventory : MonoBehaviour
 
     public bool AddItem(ushort id, int count = 1)
     {
-        for (int i = 0; i < slots.Length; i++)
-        {
-            if (slots[i].id == id && slots[i].count < 64)
-            {
-                slots[i].count += count;
-                return true;
-            }
-        }
+        if (!IsValidItem(id)) return false;
+
+        int maxStack = GetMaxStack(id);
 
         for (int i = 0; i < slots.Length; i++)
         {
-            if (slots[i].IsEmpty)
+            if (slots[i].id == id && slots[i].count < maxStack)
             {
-                slots[i] = new ItemStack { id = id, count = count };
-                return true;
+                int spaceLeft = maxStack - slots[i].count;
+                if (count <= spaceLeft)
+                {
+                    slots[i].count += count;
+                    return true;
+                }
+                else
+                {
+                    slots[i].count += spaceLeft;
+                    count -= spaceLeft;
+                }
+            }
+        }
+
+        if (count > 0)
+        {
+            for (int i = 0; i < slots.Length; i++)
+            {
+                if (slots[i].IsEmpty)
+                {
+                    slots[i] = new ItemStack { id = id, count = count };
+                    return true;
+                }
             }
         }
 
         return false;
     }
 
-    public bool RemoveSelected()
+    public bool RemoveSelected(int amount = 1)
     {
-        if (slots[selectedSlot].IsEmpty) return false;
+        if (slots[selectedSlot].IsEmpty || slots[selectedSlot].count < amount) return false;
 
-        slots[selectedSlot].count--;
+        slots[selectedSlot].count -= amount;
+
         if (slots[selectedSlot].count <= 0)
+        {
             slots[selectedSlot] = ItemStack.Empty;
+        }
 
         return true;
     }
