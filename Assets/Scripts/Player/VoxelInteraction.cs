@@ -8,11 +8,9 @@ public class VoxelInteraction : MonoBehaviour
     public Transform playerCamera;
     public PlayerController playerController;
 
-    void Update()
+    public void HandleStandardInteractions(PlayerInteractionContext context)
     {
-        if (GameManager.Instance.state != GameState.Playing) return;
-
-        RaycastResult hit = PerformRaycast();
+        RaycastResult hit = context.voxelHit;
 
         if (InputManager.Instance.AttackPressed)
         {
@@ -168,7 +166,7 @@ public class VoxelInteraction : MonoBehaviour
         }
     }
 
-    RaycastResult PerformRaycast()
+    public RaycastResult PerformRaycast()
     {
         float3 origin = playerCamera.position;
         float3 direction = playerCamera.forward;

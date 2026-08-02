@@ -7,7 +7,6 @@ public class InputManager : MonoBehaviour
 
     private GameInput input;
 
-    // Player actions
     public Vector2 Move => input.Player.Move.ReadValue<Vector2>();
     public Vector2 Look => input.Player.Look.ReadValue<Vector2>();
     public bool JumpPressed => input.Player.Jump.WasPressedThisFrame();
@@ -25,9 +24,9 @@ public class InputManager : MonoBehaviour
     public bool SprintHeld => input.Player.Sprint.IsPressed();
     public bool SneakHeld => input.Player.Sneak.IsPressed();
     public bool InteractPressed => input.Player.Interact.WasPressedThisFrame();
+    public bool InteractHeld => input.Player.Interact.IsPressed();
     public bool CancelPressed => input.Player.Cancel.WasPressedThisFrame();
 
-    // Knapping actions
     public bool KnappingStrikePressed => input.Player.KnappingStrike.WasPressedThisFrame();
     public bool KnappingStrikeReleased => input.Player.KnappingStrike.WasReleasedThisFrame();
     public bool KnappingStrikeHeld => input.Player.KnappingStrike.IsPressed();
@@ -35,7 +34,6 @@ public class InputManager : MonoBehaviour
     public float KnappingAngle => input.Player.KnappingAngle.ReadValue<float>();
     public bool KnappingConfirmPressed => input.Player.KnappingConfirm.WasPressedThisFrame();
 
-    // Last used device
     public bool IsGamepadActive { get; private set; }
 
     void Awake()

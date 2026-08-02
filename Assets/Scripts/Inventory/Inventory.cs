@@ -22,8 +22,10 @@ public class Inventory : MonoBehaviour
     {
         Instance = this;
         slots = new ItemStack[slotCount];
-        slots[0] = new ItemStack { id = 1000, count = 1 };
-        slots[1] = new ItemStack { id = 1001, count = 5 };
+        slots[0] = new ItemStack { id = 1001, count = 5 };
+        slots[1] = new ItemStack { id = 1002, count = 1 };
+        slots[2] = new ItemStack { id = 1003, count = 3 };
+        slots[3] = new ItemStack { id = 1004, count = 3 };
     }
 
     void Update()

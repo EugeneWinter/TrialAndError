@@ -14,13 +14,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 1003
   itemName: Stick
-  icon: {fileID: 0}
   maxStack: 64
   itemType: 0
-  heldModel: {fileID: 0}
+  heldModel: {fileID: 3426103221964285893, guid: 28e8719e5a0ea3f4587991fb26cba508,
+    type: 3}
   heldPosition: {x: 0.3, y: -0.3, z: 0.5}
   heldRotation: {x: 0, y: 0, z: 0}
   heldScale: {x: 1, y: 1, z: 1}
+  groundModel: {fileID: 3426103221964285893, guid: 28e8719e5a0ea3f4587991fb26cba508,
+    type: 3}
+  groundScale: {x: 0.4, y: 0.4, z: 0.4}
+  groundRotationOffset: {x: 0, y: 0, z: 0}
+  groundSink: 0.02
+  iconPosition: {x: 0, y: -0.1, z: 0}
+  iconRotation: {x: 30, y: 0, z: -40}
+  iconScale: 3.5
   toolType: 0
   toolTier: 0
   miningSpeedMultiplier: 1
