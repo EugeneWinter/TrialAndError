@@ -13,6 +13,7 @@ public class GroundItemManager : MonoBehaviour, IGameSystem
     }
 
     [SerializeField] private ItemDatabase itemDatabase;
+    [SerializeField] private Shader groundItemShader;
 
     private Dictionary<int3, GroundBlockData> groundItems = new Dictionary<int3, GroundBlockData>();
     private Dictionary<ushort, List<Matrix4x4>> renderBatches = new Dictionary<ushort, List<Matrix4x4>>();
@@ -39,6 +40,8 @@ public class GroundItemManager : MonoBehaviour, IGameSystem
     void Awake()
     {
         Instance = this;
+        if (groundItemShader == null)
+            groundItemShader = Shader.Find("Custom/GroundItemShader");
     }
 
     public void InitializeSystem() { }
@@ -188,8 +191,23 @@ public class GroundItemManager : MonoBehaviour, IGameSystem
         if (mf != null && mr != null && mf.sharedMesh != null && mr.sharedMaterial != null)
         {
             result.mesh = mf.sharedMesh;
-            result.material = new Material(mr.sharedMaterial);
+
+            Material sourceMat = mr.sharedMaterial;
+            result.material = new Material(groundItemShader);
             result.material.enableInstancing = true;
+
+            if (sourceMat.HasProperty("_BaseMap") && sourceMat.GetTexture("_BaseMap") != null)
+                result.material.SetTexture("_BaseMap", sourceMat.GetTexture("_BaseMap"));
+            else if (sourceMat.HasProperty("_MainTex") && sourceMat.GetTexture("_MainTex") != null)
+                result.material.SetTexture("_BaseMap", sourceMat.GetTexture("_MainTex"));
+            else if (sourceMat.mainTexture != null)
+                result.material.SetTexture("_BaseMap", sourceMat.mainTexture);
+
+            if (sourceMat.HasProperty("_BaseColor"))
+                result.material.SetColor("_BaseColor", sourceMat.GetColor("_BaseColor"));
+            else if (sourceMat.HasProperty("_Color"))
+                result.material.SetColor("_BaseColor", sourceMat.GetColor("_Color"));
+
             result.valid = true;
         }
 

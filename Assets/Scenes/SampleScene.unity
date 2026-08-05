@@ -185,6 +185,32 @@ MonoBehaviour:
   dawnSkyLight: {r: 1, g: 0.6, b: 0.4, a: 1}
   daySkyLight: {r: 0.85, g: 0.95, b: 1, a: 1}
   duskSkyLight: {r: 1, g: 0.55, b: 0.35, a: 1}
+  nightShadowDesat: {r: 0.35, g: 0.4, b: 0.55, a: 1}
+  dawnShadowDesat: {r: 0.55, g: 0.5, b: 0.65, a: 1}
+  dayShadowDesat: {r: 0.6, g: 0.7, b: 0.9, a: 1}
+  duskShadowDesat: {r: 0.7, g: 0.55, b: 0.6, a: 1}
+  enableHeightFog: 1
+  heightFogBottom: 55
+  heightFogTop: 90
+  nightHeightFogDensity: 0.15
+  dawnHeightFogDensity: 1.2
+  dayHeightFogDensity: 0.35
+  duskHeightFogDensity: 0.9
+  nightHeightFogColor: {r: 0.15, g: 0.2, b: 0.35, a: 1}
+  dawnHeightFogColor: {r: 1, g: 0.85, b: 0.75, a: 1}
+  dayHeightFogColor: {r: 0.85, g: 0.92, b: 1, a: 1}
+  duskHeightFogColor: {r: 1, g: 0.7, b: 0.55, a: 1}
+  worldContrast: 1.15
+  worldSaturation: 1.2
+  worldBrightnessPunch: 0.05
+  worldCurvature: 0.0002
+  autoMatchCurvatureStartToShadowDistance: 1
+  curvatureStartDistance: 60
+  curvatureStartOffset: 0
+  autoMatchRealtimeShadowFade: 1
+  realtimeShadowFadeStart: 35
+  realtimeShadowFadeEnd: 60
+  realtimeShadowFadeStartRatio: 0.55
   lightingUpdateIntervalSeconds: 30
 --- !u!4 &12213607
 Transform:
@@ -551,7 +577,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -1112,6 +1138,7 @@ GameObject:
   m_Component:
   - component: {fileID: 361024957}
   - component: {fileID: 361024956}
+  - component: {fileID: 361024958}
   m_Layer: 0
   m_Name: WorldManager
   m_TagString: Untagged
@@ -1155,6 +1182,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &361024958
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 361024955}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 319f81922f5d215498b0cfd509cc5628, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &369200990
 GameObject:
   m_ObjectHideFlags: 0
@@ -1263,7 +1302,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 49301b081afa8ed49a9d0db571b19f6f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  minutesPerHour: 24
+  minutesPerHour: 1
   startDay: 121
   startHour: 5
   currentDay: 0
@@ -1313,6 +1352,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   itemDatabase: {fileID: 11400000, guid: c3a92db653d3d0243af392603fe8fb53, type: 2}
+  groundItemShader: {fileID: 0}
 --- !u!4 &389280244
 Transform:
   m_ObjectHideFlags: 0
@@ -1408,7 +1448,7 @@ Light:
   m_InnerSpotAngle: 21.80208
   m_CookieSize: 10
   m_Shadows:
-    m_Type: 0
+    m_Type: 2
     m_Resolution: -1
     m_CustomResolution: -1
     m_Strength: 1
@@ -1480,7 +1520,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Version: 3
-  m_UsePipelineSettings: 1
+  m_UsePipelineSettings: 0
   m_AdditionalLightsShadowResolutionTier: 2
   m_LightLayerMask: 1
   m_RenderingLayers: 1
@@ -3488,12 +3528,22 @@ MonoBehaviour:
   moon: {fileID: 1861631148}
   directionalLight: {fileID: 410087040}
   followTarget: {fileID: 555302989}
-  orbitRadius: 400
-  celestialScale: 60
+  sunMaterialRef: {fileID: 2100000, guid: 07fbb65f21e116643ac61dbd979df4af, type: 2}
+  moonMaterialRef: {fileID: 2100000, guid: c06885ddcf85b5443aac345b17efd4a2, type: 2}
+  orbitRadius: 200
+  celestialScale: 30
   sunHoursPerRotation: 6
   moonHoursPerRotation: 12
   sunRotationAxis: {x: 0.6, y: 1, z: 0.4}
   moonRotationAxis: {x: 1, y: 1, z: 0.6}
+  sunEmissionColor: {r: 1, g: 0.95, b: 0.8, a: 1}
+  sunEmissionIntensity: 8
+  sunGlowColor: {r: 1, g: 0.85, b: 0.5, a: 1}
+  sunGlowIntensity: 2
+  moonEmissionColor: {r: 0.7, g: 0.8, b: 1, a: 1}
+  moonEmissionIntensity: 3
+  moonGlowColor: {r: 0.5, g: 0.6, b: 0.9, a: 1}
+  moonGlowIntensity: 1
 --- !u!4 &1206062079
 Transform:
   m_ObjectHideFlags: 0
@@ -3569,6 +3619,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1242250103}
   - component: {fileID: 1242250102}
+  - component: {fileID: 1242250104}
   m_Layer: 0
   m_Name: GameManager
   m_TagString: Untagged
@@ -3608,6 +3659,18 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1242250104
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1242250101}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6fffde18108b77648aa878d42dd864d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1249572229
 GameObject:
   m_ObjectHideFlags: 0

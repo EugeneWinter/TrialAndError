@@ -99,6 +99,7 @@ Material:
     - _Blend: 0
     - _BlendModePreserveSpecular: 1
     - _BumpScale: 1
+    - _CataclysmStrength: 0
     - _ClearCoatMask: 0
     - _ClearCoatSmoothness: 0
     - _Cull: 2
@@ -111,9 +112,16 @@ Material:
     - _GlossMapScale: 0
     - _Glossiness: 0
     - _GlossyReflections: 0
+    - _HorizonGlowFalloff: 5
+    - _HorizonGlowStrength: 0.3
     - _HorizonWidth: 0.2
     - _Metallic: 0
     - _MiddleHeight: 0
+    - _MoonAngularRadius: 3
+    - _MoonGlowIntensity: 0.6
+    - _MoonGlowRadius: 12
+    - _MoonGlowSize: 0.1
+    - _MoonSize: 0.02
     - _OcclusionStrength: 1
     - _Parallax: 0.005
     - _QueueOffset: 0
@@ -126,15 +134,27 @@ Material:
     - _StarBrightness: 1.5
     - _StarDensity: 200
     - _StarIntensity: 0
+    - _StarTwinkleSpeed: 3
+    - _SunAngularRadius: 5.2
+    - _SunDiskIntensity: 2
+    - _SunGlowIntensity: 0.25
+    - _SunGlowRadius: 8.4
+    - _SunGlowSize: 0.3
+    - _SunSize: 0.05
     - _Surface: 0
     - _WorkflowMode: 1
     - _ZWrite: 1
     m_Colors:
     - _BaseColor: {r: 1, g: 1, b: 1, a: 1}
-    - _BottomColor: {r: 0.9829613, g: 0.72271824, b: 0.5567956, a: 1}
+    - _BottomColor: {r: 0.88924694, g: 0.84767073, b: 0.86917686, a: 1}
+    - _CataclysmTint: {r: 0, g: 0, b: 0, a: 0}
     - _Color: {r: 1, g: 1, b: 1, a: 1}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
-    - _MiddleColor: {r: 0.86592263, g: 0.5783978, b: 0.5567956, a: 1}
+    - _MiddleColor: {r: 0.6784939, g: 0.73458844, b: 0.86917686, a: 1}
+    - _MoonColor: {r: 0.7, g: 0.8, b: 1, a: 1}
+    - _MoonDir: {r: 0.9744108, g: -0.22477457, b: 0.00000689244, a: 0}
     - _SpecColor: {r: 0.19999996, g: 0.19999996, b: 0.19999996, a: 1}
-    - _TopColor: {r: 0.29432046, g: 0.37271824, b: 0.6397569, a: 1}
+    - _SunColor: {r: 1, g: 0.95, b: 0.8, a: 1}
+    - _SunDir: {r: -0.9761273, g: 0.21719903, b: -0.000000095926225, a: 0}
+    - _TopColor: {r: 0.26308233, g: 0.49767074, b: 0.8584238, a: 1}
   m_BuildTextureStacks: []

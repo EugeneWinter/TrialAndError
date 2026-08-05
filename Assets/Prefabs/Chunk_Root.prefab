@@ -96,3 +96,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 60ca4cb850260194997233c91538f891, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  leafMaterial: {fileID: 2100000, guid: 3c7ca24576cc19e448636c716fa6b5b4, type: 2}
+  grassOverlayMaterial: {fileID: 2100000, guid: ac8b5fc380780af479aeb0be6152ba06,
+    type: 2}

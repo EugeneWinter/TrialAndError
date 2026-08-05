@@ -34,12 +34,14 @@ public class BlockIconGenerator : MonoBehaviour
         camObj.transform.LookAt(renderRoot.transform.position);
 
         iconCamera = camObj.AddComponent<Camera>();
-        iconCamera.clearFlags = CameraClearFlags.SolidColor;
+        iconCamera.clearFlags = CameraClearFlags.Color;
         iconCamera.backgroundColor = new Color(0, 0, 0, 0);
         iconCamera.orthographic = true;
         iconCamera.orthographicSize = iconZoom;
         iconCamera.cullingMask = 1 << LayerMask.NameToLayer("HeldItem");
         iconCamera.enabled = false;
+        iconCamera.allowHDR = false;
+        iconCamera.allowMSAA = true;
 
         GameObject lightObj = new GameObject("IconLight");
         lightObj.transform.SetParent(renderRoot.transform);
@@ -53,6 +55,11 @@ public class BlockIconGenerator : MonoBehaviour
 
     public void ClearCache()
     {
+        foreach (var sprite in iconCache.Values)
+        {
+            if (sprite != null && sprite.texture != null)
+                Destroy(sprite.texture);
+        }
         iconCache.Clear();
     }
 
@@ -93,9 +100,7 @@ public class BlockIconGenerator : MonoBehaviour
         obj.transform.localScale = Vector3.one * scale;
 
         SetLayerRecursively(obj, LayerMask.NameToLayer("HeldItem"));
-
         Sprite icon = CaptureIcon();
-
         DestroyImmediate(obj);
         return icon;
     }
@@ -109,31 +114,30 @@ public class BlockIconGenerator : MonoBehaviour
         obj.transform.localScale = Vector3.one;
 
         SetLayerRecursively(obj, LayerMask.NameToLayer("HeldItem"));
-
         Sprite icon = CaptureIcon();
-
         DestroyImmediate(obj);
         return icon;
     }
 
     Sprite CaptureIcon()
     {
-        RenderTexture rt = new RenderTexture(iconResolution, iconResolution, 16, RenderTextureFormat.ARGB32);
+        RenderTexture rt = RenderTexture.GetTemporary(iconResolution, iconResolution, 24, RenderTextureFormat.ARGB32);
         rt.filterMode = FilterMode.Point;
-        rt.Create();
 
         iconCamera.targetTexture = rt;
+        RenderTexture.active = rt;
+        GL.Clear(true, true, new Color(0, 0, 0, 0));
+
         iconCamera.Render();
 
         Texture2D tex = new Texture2D(iconResolution, iconResolution, TextureFormat.RGBA32, false);
         tex.filterMode = FilterMode.Point;
-        RenderTexture.active = rt;
         tex.ReadPixels(new Rect(0, 0, iconResolution, iconResolution), 0, 0);
         tex.Apply();
-        RenderTexture.active = null;
 
+        RenderTexture.active = null;
         iconCamera.targetTexture = null;
-        rt.Release();
+        RenderTexture.ReleaseTemporary(rt);
 
         return Sprite.Create(tex, new Rect(0, 0, iconResolution, iconResolution), new Vector2(0.5f, 0.5f), 100f);
     }

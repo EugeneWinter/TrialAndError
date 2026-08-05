@@ -19,8 +19,11 @@ Shader "Custom/GhostShader"
             #pragma fragment frag
 
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
+            #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            float4 _Color;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _Color;
+            CBUFFER_END
 
             struct Attributes
             {
@@ -44,8 +47,10 @@ Shader "Custom/GhostShader"
 
             half4 frag(Varyings IN) : SV_Target
             {
-                float ndotl = saturate(dot(IN.normalWS, float3(0, 1, 0))) * 0.5 + 0.5;
-                return half4(_Color.rgb * ndotl, _Color.a);
+                Light mainLight = GetMainLight();
+                float ndotl = saturate(dot(IN.normalWS, mainLight.direction)) * 0.5 + 0.5;
+                half3 tinted = _Color.rgb * lerp(0.7.xxx, mainLight.color.rgb, 0.5) * ndotl;
+                return half4(tinted, _Color.a);
             }
             ENDHLSL
         }

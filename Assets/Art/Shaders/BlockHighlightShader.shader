@@ -5,6 +5,7 @@ Shader "Custom/BlockHighlight"
         _DarkenAmount ("Darken Amount", Range(0, 0.6)) = 0.15
         _Thickness ("Edge Thickness", Range(0.001, 0.08)) = 0.03
         _EdgeSoftness ("Edge Softness", Range(0.0, 0.05)) = 0.01
+        _OffsetDistance ("Offset Distance (WS)", Range(0.0, 0.02)) = 0.002
     }
     SubShader
     {
@@ -26,6 +27,7 @@ Shader "Custom/BlockHighlight"
                 float _DarkenAmount;
                 float _Thickness;
                 float _EdgeSoftness;
+                float _OffsetDistance;
             CBUFFER_END
 
             struct Attributes
@@ -46,11 +48,13 @@ Shader "Custom/BlockHighlight"
             {
                 Varyings OUT;
 
-                float3 expandedPos = IN.positionOS.xyz + IN.normalOS * 0.001;
+                float3 worldPos = TransformObjectToWorld(IN.positionOS.xyz);
+                float3 worldNormal = TransformObjectToWorldNormal(IN.normalOS);
+                worldPos += worldNormal * _OffsetDistance;
 
-                OUT.positionCS = TransformObjectToHClip(expandedPos);
+                OUT.positionCS = TransformWorldToHClip(worldPos);
                 OUT.uv = IN.uv;
-                OUT.normalWS = TransformObjectToWorldNormal(IN.normalOS);
+                OUT.normalWS = worldNormal;
                 return OUT;
             }
 

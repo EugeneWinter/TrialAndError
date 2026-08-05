@@ -17,7 +17,9 @@ Shader "Custom/KnappingStone"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Core.hlsl"
             #include "Packages/com.unity.render-pipelines.universal/ShaderLibrary/Lighting.hlsl"
 
-            float4 _BaseColor;
+            CBUFFER_START(UnityPerMaterial)
+                float4 _BaseColor;
+            CBUFFER_END
 
             struct Attributes
             {

@@ -1,5 +1,111 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!114 &-4186924510056565505
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8e7e9129c29df0d4789cdad4b607980a, type: 3}
+  m_Name: WarmSciencePostProcessVolume
+  m_EditorClassIdentifier: 
+  active: 1
+  enableEffect:
+    m_OverrideState: 1
+    m_Value: 1
+  exposure:
+    m_OverrideState: 1
+    m_Value: 0
+  whitePathAmount:
+    m_OverrideState: 1
+    m_Value: 1
+  whiteCurve:
+    m_OverrideState: 1
+    m_Value: 2
+  lowerCurve:
+    m_OverrideState: 1
+    m_Value: 1
+  upperCurve:
+    m_OverrideState: 1
+    m_Value: 1
+  bloomIntensity:
+    m_OverrideState: 1
+    m_Value: 1
+  bloomContrast:
+    m_OverrideState: 1
+    m_Value: 0
+  bloomIterations:
+    m_OverrideState: 1
+    m_Value: 6
+  cgRMul:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 0, b: 0, a: 1}
+  cgRIntensity:
+    m_OverrideState: 1
+    m_Value: 1
+  cgRMin:
+    m_OverrideState: 1
+    m_Value: 0
+  cgRCurve:
+    m_OverrideState: 1
+    m_Value: 1
+  cgGMul:
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 1, b: 0, a: 1}
+  cgGIntensity:
+    m_OverrideState: 1
+    m_Value: 1
+  cgGMin:
+    m_OverrideState: 1
+    m_Value: 0
+  cgGCurve:
+    m_OverrideState: 1
+    m_Value: 1
+  cgBMul:
+    m_OverrideState: 1
+    m_Value: {r: 0, g: 0, b: 1, a: 1}
+  cgBIntensity:
+    m_OverrideState: 1
+    m_Value: 1
+  cgBMin:
+    m_OverrideState: 1
+    m_Value: 0
+  cgBCurve:
+    m_OverrideState: 1
+    m_Value: 1
+  cgTint:
+    m_OverrideState: 1
+    m_Value: {r: 1, g: 0.95, b: 0.85, a: 1}
+  cgTintIntensity:
+    m_OverrideState: 1
+    m_Value: 1
+  cgTintMix:
+    m_OverrideState: 1
+    m_Value: 0
+  saturation:
+    m_OverrideState: 1
+    m_Value: 1.05
+  vibrance:
+    m_OverrideState: 1
+    m_Value: 1.1
+  vignetteStrength:
+    m_OverrideState: 1
+    m_Value: 0.6
+  vignetteSmoothness:
+    m_OverrideState: 1
+    m_Value: 0.4
+  vignetteColor:
+    m_OverrideState: 1
+    m_Value: {r: 0.85, g: 0.8, b: 0.75, a: 1}
+  filmGrainIntensity:
+    m_OverrideState: 1
+    m_Value: 0.02
+  filmGrainSize:
+    m_OverrideState: 1
+    m_Value: 1024
 --- !u!114 &-1985172104888910852
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -12,7 +118,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 899c54efeace73346a0a16faa3afe726, type: 3}
   m_Name: Vignette
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   color:
     m_OverrideState: 0
     m_Value: {r: 0, g: 0, b: 0, a: 1}
@@ -20,10 +126,10 @@ MonoBehaviour:
     m_OverrideState: 0
     m_Value: {x: 0.5, y: 0.5}
   intensity:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.2
   smoothness:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.4
   rounded:
     m_OverrideState: 0
@@ -45,6 +151,7 @@ MonoBehaviour:
   - {fileID: 2579933024465526006}
   - {fileID: 5475750691050432813}
   - {fileID: -1985172104888910852}
+  - {fileID: -4186924510056565505}
 --- !u!114 &2579933024465526006
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -57,9 +164,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 97c23e3b12dc18c42a140437e53d3951, type: 3}
   m_Name: Tonemapping
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   mode:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   neutralHDRRangeReductionMode:
     m_OverrideState: 0
@@ -97,7 +204,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 66f335fb1ffd8684294ad653bf1c7564, type: 3}
   m_Name: ColorAdjustments
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   postExposure:
     m_OverrideState: 1
     m_Value: 0.2
@@ -125,27 +232,27 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b2db86121404754db890f4c8dfe81b2, type: 3}
   m_Name: Bloom
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   skipIterations:
     m_OverrideState: 0
     m_Value: 1
   threshold:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.9
   intensity:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.4
   scatter:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 0.7
   clamp:
     m_OverrideState: 0
     m_Value: 65472
   tint:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: {r: 1, g: 1, b: 1, a: 1}
   highQualityFiltering:
-    m_OverrideState: 1
+    m_OverrideState: 0
     m_Value: 1
   downscale:
     m_OverrideState: 0

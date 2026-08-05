@@ -39,8 +39,8 @@ public class HotbarUI : MonoBehaviour
             countTexts[i] = slot.GetComponentInChildren<Text>();
             countTexts[i].text = "";
 
-            previousIds[i] = 0;
-            previousCounts[i] = 0;
+            previousIds[i] = 65535;
+            previousCounts[i] = -1;
         }
     }
 

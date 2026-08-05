@@ -7,6 +7,9 @@ using System.Collections.Generic;
 [RequireComponent(typeof(MeshFilter), typeof(MeshRenderer))]
 public class ChunkRenderer : MonoBehaviour
 {
+    public Material leafMaterial;
+    public Material grassOverlayMaterial;
+
     private Mesh mesh;
     private ChunkData data;
     private Transform modelsRoot;
@@ -29,20 +32,38 @@ public class ChunkRenderer : MonoBehaviour
     public void RenderMesh()
     {
         Vector3 sunDir = Vector3.down;
-        if (WorldManager.Instance != null)
-        {
-            Light dirLight = GameObject.FindObjectOfType<Light>();
-            if (dirLight != null && dirLight.type == LightType.Directional)
-                sunDir = dirLight.transform.forward;
-        }
+        Light dirLight = GetWorldDirectionalLight();
+        if (dirLight != null)
+            sunDir = dirLight.transform.forward;
 
         byte[] lightMap = LightEngine.CalculateLight(data, WorldManager.Instance, sunDir);
 
-        var verts = new NativeList<float3>(Allocator.TempJob);
-        var tris = new NativeList<int>(Allocator.TempJob);
-        var uvs = new NativeList<float3>(Allocator.TempJob);
-        var norms = new NativeList<float3>(Allocator.TempJob);
-        var colors = new NativeList<float4>(Allocator.TempJob);
+        StandardMeshBuffers standardBuffers = new StandardMeshBuffers
+        {
+            vertices = new NativeList<float3>(Allocator.TempJob),
+            triangles = new NativeList<int>(Allocator.TempJob),
+            uvs = new NativeList<float3>(Allocator.TempJob),
+            normals = new NativeList<float3>(Allocator.TempJob),
+            vertexColors = new NativeList<float4>(Allocator.TempJob)
+        };
+
+        LeafMeshBuffers leafBuffers = new LeafMeshBuffers
+        {
+            vertices = new NativeList<float3>(Allocator.TempJob),
+            triangles = new NativeList<int>(Allocator.TempJob),
+            uvs = new NativeList<float3>(Allocator.TempJob),
+            normals = new NativeList<float3>(Allocator.TempJob),
+            vertexColors = new NativeList<float4>(Allocator.TempJob)
+        };
+
+        GrassOverlayMeshBuffers grassBuffers = new GrassOverlayMeshBuffers
+        {
+            vertices = new NativeList<float3>(Allocator.TempJob),
+            triangles = new NativeList<int>(Allocator.TempJob),
+            uvs = new NativeList<float2>(Allocator.TempJob),
+            normals = new NativeList<float3>(Allocator.TempJob),
+            vertexColors = new NativeList<float4>(Allocator.TempJob)
+        };
 
         NativeArray<byte> nativeLightMap = new NativeArray<byte>(lightMap, Allocator.TempJob);
 
@@ -68,11 +89,9 @@ public class ChunkRenderer : MonoBehaviour
             blocks = data.blocks,
             visualData = world.blockDatabase.GetVisualData(),
             lightMap = nativeLightMap,
-            vertices = verts,
-            triangles = tris,
-            uvs = uvs,
-            normals = norms,
-            vertexColors = colors,
+            standardBuffers = standardBuffers,
+            leafBuffers = leafBuffers,
+            grassOverlayBuffers = grassBuffers,
             neighborXNeg = sliceXN,
             neighborXPos = sliceXP,
             neighborYNeg = sliceYN,
@@ -89,27 +108,153 @@ public class ChunkRenderer : MonoBehaviour
 
         job.Schedule().Complete();
 
-        mesh.Clear();
-        mesh.SetVertices(verts.AsArray().Reinterpret<Vector3>());
-        mesh.SetIndices(tris.AsArray(), MeshTopology.Triangles, 0);
-        mesh.SetUVs(0, uvs.AsArray().Reinterpret<Vector3>());
-        mesh.SetNormals(norms.AsArray().Reinterpret<Vector3>());
-        mesh.SetColors(colors.AsArray().Reinterpret<Color>());
+        UploadMeshData(standardBuffers, leafBuffers, grassBuffers);
 
-        verts.Dispose();
-        tris.Dispose();
-        uvs.Dispose();
-        norms.Dispose();
-        colors.Dispose();
+        DisposeBuffers(standardBuffers, leafBuffers, grassBuffers);
+
         nativeLightMap.Dispose();
-        sliceXN.Dispose(); sliceXP.Dispose(); sliceYN.Dispose(); sliceYP.Dispose(); sliceZN.Dispose(); sliceZP.Dispose();
+        sliceXN.Dispose();
+        sliceXP.Dispose();
+        sliceYN.Dispose();
+        sliceYP.Dispose();
+        sliceZN.Dispose();
+        sliceZP.Dispose();
 
         SpawnCustomModels(world);
     }
 
+    Light GetWorldDirectionalLight()
+    {
+        if (AtmosphereController.Instance != null && AtmosphereController.Instance.directionalLight != null)
+            return AtmosphereController.Instance.directionalLight;
+
+        if (CelestialCycle.Instance != null && CelestialCycle.Instance.directionalLight != null)
+            return CelestialCycle.Instance.directionalLight;
+
+        Light[] lights = GameObject.FindObjectsOfType<Light>();
+        for (int i = 0; i < lights.Length; i++)
+        {
+            Light l = lights[i];
+            if (l == null) continue;
+            if (!l.isActiveAndEnabled) continue;
+            if (l.type != LightType.Directional) continue;
+            if (l.shadows == LightShadows.None) continue;
+            return l;
+        }
+
+        for (int i = 0; i < lights.Length; i++)
+        {
+            Light l = lights[i];
+            if (l == null) continue;
+            if (!l.isActiveAndEnabled) continue;
+            if (l.type != LightType.Directional) continue;
+            return l;
+        }
+
+        return null;
+    }
+
+    void UploadMeshData(StandardMeshBuffers standard, LeafMeshBuffers leaf, GrassOverlayMeshBuffers grass)
+    {
+        mesh.Clear();
+
+        int totalVerts = standard.vertices.Length + leaf.vertices.Length + grass.vertices.Length;
+        Vector3[] allVerts = new Vector3[totalVerts];
+        Vector3[] allUvs = new Vector3[totalVerts];
+        Vector3[] allNorms = new Vector3[totalVerts];
+        Color[] allColors = new Color[totalVerts];
+
+        for (int i = 0; i < standard.vertices.Length; i++)
+        {
+            allVerts[i] = standard.vertices[i];
+            allUvs[i] = standard.uvs[i];
+            allNorms[i] = standard.normals[i];
+            allColors[i] = new Color(standard.vertexColors[i].x, standard.vertexColors[i].y, standard.vertexColors[i].z, standard.vertexColors[i].w);
+        }
+
+        int leafOffset = standard.vertices.Length;
+        for (int i = 0; i < leaf.vertices.Length; i++)
+        {
+            allVerts[leafOffset + i] = leaf.vertices[i];
+            allUvs[leafOffset + i] = leaf.uvs[i];
+            allNorms[leafOffset + i] = leaf.normals[i];
+            allColors[leafOffset + i] = new Color(leaf.vertexColors[i].x, leaf.vertexColors[i].y, leaf.vertexColors[i].z, leaf.vertexColors[i].w);
+        }
+
+        int grassOffset = standard.vertices.Length + leaf.vertices.Length;
+        for (int i = 0; i < grass.vertices.Length; i++)
+        {
+            allVerts[grassOffset + i] = grass.vertices[i];
+            allUvs[grassOffset + i] = new Vector3(grass.uvs[i].x, grass.uvs[i].y, 0);
+            allNorms[grassOffset + i] = grass.normals[i];
+            allColors[grassOffset + i] = new Color(grass.vertexColors[i].x, grass.vertexColors[i].y, grass.vertexColors[i].z, grass.vertexColors[i].w);
+        }
+
+        mesh.SetVertices(allVerts);
+        mesh.SetUVs(0, allUvs);
+        mesh.SetNormals(allNorms);
+        mesh.SetColors(allColors);
+
+        bool hasLeaves = leaf.triangles.Length > 0;
+        bool hasGrass = grass.triangles.Length > 0;
+
+        int subMeshCount = 1 + (hasLeaves ? 1 : 0) + (hasGrass ? 1 : 0);
+        mesh.subMeshCount = subMeshCount;
+
+        int currentSubMesh = 0;
+
+        int[] mainTris = new int[standard.triangles.Length];
+        for (int i = 0; i < standard.triangles.Length; i++) mainTris[i] = standard.triangles[i];
+        mesh.SetTriangles(mainTris, currentSubMesh);
+        currentSubMesh++;
+
+        if (hasLeaves)
+        {
+            int[] leafTrisArray = new int[leaf.triangles.Length];
+            for (int i = 0; i < leaf.triangles.Length; i++) leafTrisArray[i] = leaf.triangles[i] + leafOffset;
+            mesh.SetTriangles(leafTrisArray, currentSubMesh);
+            currentSubMesh++;
+        }
+
+        if (hasGrass)
+        {
+            int[] grassTrisArray = new int[grass.triangles.Length];
+            for (int i = 0; i < grass.triangles.Length; i++) grassTrisArray[i] = grass.triangles[i] + grassOffset;
+            mesh.SetTriangles(grassTrisArray, currentSubMesh);
+        }
+
+        MeshRenderer mr = GetComponent<MeshRenderer>();
+        Material mainMat = mr.sharedMaterials.Length > 0 ? mr.sharedMaterials[0] : null;
+
+        List<Material> materialList = new List<Material> { mainMat };
+        if (hasLeaves) materialList.Add(leafMaterial);
+        if (hasGrass) materialList.Add(grassOverlayMaterial);
+        mr.sharedMaterials = materialList.ToArray();
+    }
+
+    void DisposeBuffers(StandardMeshBuffers standard, LeafMeshBuffers leaf, GrassOverlayMeshBuffers grass)
+    {
+        standard.vertices.Dispose();
+        standard.triangles.Dispose();
+        standard.uvs.Dispose();
+        standard.normals.Dispose();
+        standard.vertexColors.Dispose();
+
+        leaf.vertices.Dispose();
+        leaf.triangles.Dispose();
+        leaf.uvs.Dispose();
+        leaf.normals.Dispose();
+        leaf.vertexColors.Dispose();
+
+        grass.vertices.Dispose();
+        grass.triangles.Dispose();
+        grass.uvs.Dispose();
+        grass.normals.Dispose();
+        grass.vertexColors.Dispose();
+    }
+
     void SpawnCustomModels(WorldManager world)
     {
-        // Удаляем старые модели
         foreach (var model in spawnedModels) Destroy(model);
         spawnedModels.Clear();
 
