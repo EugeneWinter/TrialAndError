@@ -25,15 +25,43 @@ MonoBehaviour:
   isTransparent: 0
   isCustomModel: 0
   customModelPrefab: {fileID: 0}
-  texTop: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
-  texBottom: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
-  texNorth: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
-  texSouth: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
-  texEast: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
-  texWest: {fileID: 2800000, guid: c9904cd858095b14ea146a9d84dcd40a, type: 3}
-  indexTop: 7
-  indexBottom: 7
-  indexNorth: 7
-  indexSouth: 7
-  indexEast: 7
-  indexWest: 7
+  usePalette: 1
+  useMultiFacePalette: 0
+  masterTexture: {fileID: 2800000, guid: 43e6474ef505e0c4c9c0398e2513245e, type: 3}
+  palette:
+  - {r: 0.83137256, g: 0.69411767, b: 0.36078432, a: 0}
+  - {r: 0.91764706, g: 0.76862746, b: 0.41960785, a: 0}
+  - {r: 0.96862745, g: 0.8235294, b: 0.4745098, a: 0}
+  - {r: 1, g: 0.8862745, b: 0.60784316, a: 0}
+  masterTop: {fileID: 0}
+  masterSide: {fileID: 0}
+  masterBottom: {fileID: 0}
+  paletteTop:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteSide:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteBottom:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  texTop: {fileID: 2800000, guid: 2b38b5edc6adfcf4683250f3cc7f6e4c, type: 3}
+  texBottom: {fileID: 2800000, guid: 2b38b5edc6adfcf4683250f3cc7f6e4c, type: 3}
+  texNorth: {fileID: 2800000, guid: 2b38b5edc6adfcf4683250f3cc7f6e4c, type: 3}
+  texSouth: {fileID: 2800000, guid: 2b38b5edc6adfcf4683250f3cc7f6e4c, type: 3}
+  texEast: {fileID: 2800000, guid: 2b38b5edc6adfcf4683250f3cc7f6e4c, type: 3}
+  texWest: {fileID: 2800000, guid: 2b38b5edc6adfcf4683250f3cc7f6e4c, type: 3}
+  indexTop: 8
+  indexBottom: 8
+  indexNorth: 8
+  indexSouth: 8
+  indexEast: 8
+  indexWest: 8

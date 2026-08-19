@@ -6,6 +6,7 @@ using Unity.Mathematics;
 public struct ChunkLighting
 {
     [ReadOnly] public NativeArray<byte> lightMap;
+    public int chunkY;
 
     public float GetLightFloat(int x, int y, int z)
     {
@@ -13,6 +14,9 @@ public struct ChunkLighting
             return 0.9f;
 
         int idx = x + y * 32 + z * 32 * 32;
+        if (idx < 0 || idx >= lightMap.Length)
+            return 0.9f;
+
         float light = lightMap[idx] / 15f;
         return math.max(light, 0.05f);
     }

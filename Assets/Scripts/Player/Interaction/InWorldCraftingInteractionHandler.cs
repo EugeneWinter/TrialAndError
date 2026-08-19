@@ -100,7 +100,7 @@ public class InWorldCraftingInteractionHandler : MonoBehaviour
 
         if (BlockParticleSystem.Instance != null)
         {
-            BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(BlockIDs.Stone);
+            BlockSO block = WorldManager.Instance.blockDatabase.GetBlockSO(BlockIDs.Andesite);
             if (block != null)
                 BlockParticleSystem.Instance.SpawnBreakParticles(spawnPos, block, BlockFace.Top);
         }

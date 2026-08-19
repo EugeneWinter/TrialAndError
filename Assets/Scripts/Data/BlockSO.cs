@@ -22,10 +22,26 @@ public class BlockSO : ScriptableObject
     public bool isTransparent = false;
     public bool isCustomModel = false;
 
-    [Header("Custom Model (If isCustomModel = true)")]
+    [Header("Custom Model")]
     public GameObject customModelPrefab;
 
-    [Header("Textures (For normal blocks)")]
+    [Header("Palette Mode")]
+    public bool usePalette = false;
+    public bool useMultiFacePalette = false;
+
+    [Header("Single Face Palette")]
+    public Texture2D masterTexture;
+    public Color[] palette = new Color[4];
+
+    [Header("Multi Face Palette")]
+    public Texture2D masterTop;
+    public Texture2D masterSide;
+    public Texture2D masterBottom;
+    public Color[] paletteTop = new Color[3];
+    public Color[] paletteSide = new Color[7];
+    public Color[] paletteBottom = new Color[4];
+
+    [Header("Textures (Auto-filled if using Palette)")]
     public Texture2D texTop;
     public Texture2D texBottom;
     public Texture2D texNorth;

@@ -25,15 +25,43 @@ MonoBehaviour:
   isTransparent: 0
   isCustomModel: 0
   customModelPrefab: {fileID: 0}
-  texTop: {fileID: 2800000, guid: 9b7fe7386243dba47b159a11e5c7d392, type: 3}
-  texBottom: {fileID: 2800000, guid: 9b7fe7386243dba47b159a11e5c7d392, type: 3}
-  texNorth: {fileID: 2800000, guid: 9b7fe7386243dba47b159a11e5c7d392, type: 3}
-  texSouth: {fileID: 2800000, guid: 9b7fe7386243dba47b159a11e5c7d392, type: 3}
-  texEast: {fileID: 2800000, guid: 9b7fe7386243dba47b159a11e5c7d392, type: 3}
-  texWest: {fileID: 2800000, guid: 9b7fe7386243dba47b159a11e5c7d392, type: 3}
-  indexTop: 2
-  indexBottom: 2
-  indexNorth: 2
-  indexSouth: 2
-  indexEast: 2
-  indexWest: 2
+  usePalette: 1
+  useMultiFacePalette: 0
+  masterTexture: {fileID: 2800000, guid: 260349f1aa9a70148b7d9c113eb769f2, type: 3}
+  palette:
+  - {r: 0.3882353, g: 0.25882354, b: 0.1254902, a: 1}
+  - {r: 0.49803922, g: 0.34509805, b: 0.19215687, a: 1}
+  - {r: 0.61960787, g: 0.43529412, b: 0.2509804, a: 1}
+  - {r: 0.7254902, g: 0.53333336, b: 0.34509805, a: 1}
+  masterTop: {fileID: 0}
+  masterSide: {fileID: 0}
+  masterBottom: {fileID: 0}
+  paletteTop:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteSide:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteBottom:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  texTop: {fileID: 2800000, guid: 678a7ff6e59532b488386eb0eee134d6, type: 3}
+  texBottom: {fileID: 2800000, guid: 678a7ff6e59532b488386eb0eee134d6, type: 3}
+  texNorth: {fileID: 2800000, guid: 678a7ff6e59532b488386eb0eee134d6, type: 3}
+  texSouth: {fileID: 2800000, guid: 678a7ff6e59532b488386eb0eee134d6, type: 3}
+  texEast: {fileID: 2800000, guid: 678a7ff6e59532b488386eb0eee134d6, type: 3}
+  texWest: {fileID: 2800000, guid: 678a7ff6e59532b488386eb0eee134d6, type: 3}
+  indexTop: 4
+  indexBottom: 4
+  indexNorth: 4
+  indexSouth: 4
+  indexEast: 4
+  indexWest: 4

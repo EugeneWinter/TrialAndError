@@ -25,15 +25,43 @@ MonoBehaviour:
   isTransparent: 0
   isCustomModel: 0
   customModelPrefab: {fileID: 0}
+  usePalette: 0
+  useMultiFacePalette: 0
+  masterTexture: {fileID: 0}
+  palette:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  masterTop: {fileID: 0}
+  masterSide: {fileID: 0}
+  masterBottom: {fileID: 0}
+  paletteTop:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteSide:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteBottom:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
   texTop: {fileID: 2800000, guid: a6df31a091eefbf49bd6a2673967b834, type: 3}
   texBottom: {fileID: 2800000, guid: a6df31a091eefbf49bd6a2673967b834, type: 3}
   texNorth: {fileID: 2800000, guid: a4f8fb1b66914ba49b3e6a80a31e9443, type: 3}
   texSouth: {fileID: 2800000, guid: a4f8fb1b66914ba49b3e6a80a31e9443, type: 3}
   texEast: {fileID: 2800000, guid: a4f8fb1b66914ba49b3e6a80a31e9443, type: 3}
   texWest: {fileID: 2800000, guid: a4f8fb1b66914ba49b3e6a80a31e9443, type: 3}
-  indexTop: 4
-  indexBottom: 4
-  indexNorth: 5
-  indexSouth: 5
-  indexEast: 5
-  indexWest: 5
+  indexTop: 5
+  indexBottom: 5
+  indexNorth: 6
+  indexSouth: 6
+  indexEast: 6
+  indexWest: 6

@@ -265,11 +265,11 @@ public class VoxelInteraction : MonoBehaviour
     {
         switch (mat)
         {
-            case FootstepMaterial.Stone: return BlockIDs.Stone;
+            case FootstepMaterial.Stone: return BlockIDs.Andesite;
             case FootstepMaterial.Wood: return BlockIDs.Log;
             case FootstepMaterial.Grass: return BlockIDs.Grass;
             case FootstepMaterial.Dirt: return BlockIDs.Dirt;
-            default: return BlockIDs.Stone;
+            default: return BlockIDs.Andesite;
         }
     }
 }

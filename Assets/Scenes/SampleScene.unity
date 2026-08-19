@@ -757,7 +757,7 @@ MonoBehaviour:
     type: 3}
   followTarget: {fileID: 555302989}
   renderDistance: 5
-  cloudHeight: 100
+  cloudHeight: 200
   cloudThickness: 3
   currentThreshold: 0.35
   currentScale: 0.03
@@ -1089,8 +1089,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: baa5af3a25f8fb54b99953690aa342aa, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeStartCos: 0.1
-  fadeEndCos: -0.2
 --- !u!1 &352358914
 GameObject:
   m_ObjectHideFlags: 0
@@ -1173,15 +1171,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8fe6db884c1a5ea458407abb3d54619b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  blockDatabase: {fileID: 11400000, guid: ecb7df5d0ee2cb942a1e93fbaf79765d, type: 2}
   chunkPrefab: {fileID: 7613431238825858100, guid: e2b332779ae249a4198c9b18e6266125,
     type: 3}
-  blockDatabase: {fileID: 11400000, guid: ecb7df5d0ee2cb942a1e93fbaf79765d, type: 2}
   renderDistance: 8
   seed: 12345
-  worldHeightInChunks: 8
   seaLevel: 64
-  chunksPerFrameRecalc: 1
-  chunksPerFrameGeneration: 4
+  worldHeightInChunks: 16
+  columnsPerFrame: 1
+  startupRadius: 3
 --- !u!4 &361024957
 Transform:
   m_ObjectHideFlags: 0

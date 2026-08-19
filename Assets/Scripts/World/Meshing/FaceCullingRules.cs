@@ -3,20 +3,16 @@ using Unity.Burst;
 [BurstCompile]
 public static class FaceCullingRules
 {
-    public static bool ShouldDrawFace(ushort current, ushort neighbor, ChunkBlockAccess access)
+    public static bool ShouldDrawFace(ushort block, ushort neighbor, ChunkBlockAccess access)
     {
-        if (neighbor == 0) return true;
-        if (neighbor == 6) return true;
-        if (neighbor >= access.visualData.Length) return true;
-        if (access.visualData[neighbor].isCustomModel) return true;
+        if (block == BlockIDs.Air) return false;
+        if (neighbor == BlockIDs.Air) return true;
+        if (neighbor == BlockIDs.Water) return block != BlockIDs.Water;
 
-        if (access.IsOpaque(neighbor)) return false;
+        if (access.IsTransparent(neighbor) && !access.IsTransparent(block)) return true;
+        if (access.IsTransparent(block) && access.IsTransparent(neighbor)) return false;
+        if (!access.IsOpaque(neighbor)) return true;
 
-        bool currentTransparent = access.IsTransparent(current);
-        bool neighborTransparent = access.IsTransparent(neighbor);
-
-        if (currentTransparent && neighborTransparent && current == neighbor) return false;
-
-        return true;
+        return false;
     }
 }

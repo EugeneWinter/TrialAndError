@@ -209,14 +209,14 @@ public class AudioManager : MonoBehaviour, IGameSystem
     {
         return id switch
         {
-            BlockIDs.Stone => FootstepMaterial.Stone,
+            BlockIDs.Andesite => FootstepMaterial.Stone,
             BlockIDs.Grass => FootstepMaterial.Grass,
             BlockIDs.Dirt => FootstepMaterial.Dirt,
             BlockIDs.Log => FootstepMaterial.Wood,
             BlockIDs.Leaf => FootstepMaterial.Dirt,
             BlockIDs.Water => FootstepMaterial.Stone,
             BlockIDs.Sand => FootstepMaterial.Dirt,
-            BlockIDs.Deepstone => FootstepMaterial.Stone,
+            BlockIDs.Basalt => FootstepMaterial.Stone,
             _ => FootstepMaterial.Dirt
         };
     }

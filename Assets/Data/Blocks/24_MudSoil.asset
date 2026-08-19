@@ -1,0 +1,67 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2202977238d05de48ad552a1f67cf2c5, type: 3}
+  m_Name: 24_MudSoil
+  m_EditorClassIdentifier: 
+  id: 24
+  blockName: 
+  hardness: 1
+  breakable: 1
+  dropId: 24
+  dropCount: 1
+  category: 0
+  requiredTool: 0
+  requiredTier: 0
+  isSolid: 1
+  isTransparent: 0
+  isCustomModel: 0
+  customModelPrefab: {fileID: 0}
+  usePalette: 1
+  useMultiFacePalette: 0
+  masterTexture: {fileID: 2800000, guid: 260349f1aa9a70148b7d9c113eb769f2, type: 3}
+  palette:
+  - {r: 0.16470589, g: 0.13333334, b: 0.09411765, a: 0}
+  - {r: 0.24313726, g: 0.20392157, b: 0.14509805, a: 0}
+  - {r: 0.33333334, g: 0.28235295, b: 0.20784314, a: 0}
+  - {r: 0.41960785, g: 0.36078432, b: 0.27058825, a: 0}
+  masterTop: {fileID: 0}
+  masterSide: {fileID: 0}
+  masterBottom: {fileID: 0}
+  paletteTop:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteSide:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  paletteBottom:
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  - {r: 0, g: 0, b: 0, a: 0}
+  texTop: {fileID: 2800000, guid: f68bb8d4da8f9cb4991ab1a19ad24cdf, type: 3}
+  texBottom: {fileID: 2800000, guid: f68bb8d4da8f9cb4991ab1a19ad24cdf, type: 3}
+  texNorth: {fileID: 2800000, guid: f68bb8d4da8f9cb4991ab1a19ad24cdf, type: 3}
+  texSouth: {fileID: 2800000, guid: f68bb8d4da8f9cb4991ab1a19ad24cdf, type: 3}
+  texEast: {fileID: 2800000, guid: f68bb8d4da8f9cb4991ab1a19ad24cdf, type: 3}
+  texWest: {fileID: 2800000, guid: f68bb8d4da8f9cb4991ab1a19ad24cdf, type: 3}
+  indexTop: 11
+  indexBottom: 11
+  indexNorth: 11
+  indexSouth: 11
+  indexEast: 11
+  indexWest: 11

@@ -1,4 +1,4 @@
-using Unity.Mathematics;
+/*using Unity.Mathematics;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -169,4 +169,4 @@ public static class LightEngine
         if (blockId == BlockIDs.Leaf) return false;
         return true;
     }
-}
+}*/

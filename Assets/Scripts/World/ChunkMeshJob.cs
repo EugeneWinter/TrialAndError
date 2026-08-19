@@ -9,18 +9,14 @@ public struct ChunkMeshJob : IJob
     [ReadOnly] public NativeArray<ushort> blocks;
     [ReadOnly] public NativeArray<BlockDatabase.BlockVisualData> visualData;
     [ReadOnly] public NativeArray<byte> lightMap;
+    public int chunkY;
 
     [ReadOnly] public NativeArray<ushort> neighborXNeg;
     [ReadOnly] public NativeArray<ushort> neighborXPos;
-    [ReadOnly] public NativeArray<ushort> neighborYNeg;
-    [ReadOnly] public NativeArray<ushort> neighborYPos;
     [ReadOnly] public NativeArray<ushort> neighborZNeg;
     [ReadOnly] public NativeArray<ushort> neighborZPos;
-
     public bool hasNeighborXNeg;
     public bool hasNeighborXPos;
-    public bool hasNeighborYNeg;
-    public bool hasNeighborYPos;
     public bool hasNeighborZNeg;
     public bool hasNeighborZPos;
 
@@ -34,23 +30,21 @@ public struct ChunkMeshJob : IJob
         {
             blocks = blocks,
             visualData = visualData,
+            chunkY = chunkY,
             neighborXNeg = neighborXNeg,
             neighborXPos = neighborXPos,
-            neighborYNeg = neighborYNeg,
-            neighborYPos = neighborYPos,
             neighborZNeg = neighborZNeg,
             neighborZPos = neighborZPos,
             hasNeighborXNeg = hasNeighborXNeg,
             hasNeighborXPos = hasNeighborXPos,
-            hasNeighborYNeg = hasNeighborYNeg,
-            hasNeighborYPos = hasNeighborYPos,
             hasNeighborZNeg = hasNeighborZNeg,
             hasNeighborZPos = hasNeighborZPos
         };
 
         ChunkLighting lightingCtx = new ChunkLighting
         {
-            lightMap = lightMap
+            lightMap = lightMap,
+            chunkY = chunkY
         };
 
         StandardFaceBuilder faceBuilder = new StandardFaceBuilder
@@ -72,16 +66,17 @@ public struct ChunkMeshJob : IJob
         };
 
         for (int x = 0; x < 32; x++)
+        {
             for (int y = 0; y < 32; y++)
+            {
                 for (int z = 0; z < 32; z++)
                 {
                     ushort block = access.GetBlock(x, y, z);
-                    if (block == 0) continue;
-                    if (block == 6) continue;
+                    if (block == BlockIDs.Air) continue;
+                    if (block == BlockIDs.Water) continue;
                     if (block >= visualData.Length) continue;
 
                     var v = visualData[block];
-
                     if (v.isCustomModel) continue;
 
                     bool isLeaf = (block == LeafMeshBuilder.LEAF_ID);
@@ -111,5 +106,7 @@ public struct ChunkMeshJob : IJob
                             grassBuilder.AddOverlays(x, y, z, ref grassOverlayBuffers);
                     }
                 }
+            }
+        }
     }
 }
